@@ -1,0 +1,6 @@
+### GET request to example server with user actuator:Withdeepdedication.
+GET http://localhost:8080/actuator/prometheus
+Authorization: Basic actuator Withdeepdedication.
+
+
+###

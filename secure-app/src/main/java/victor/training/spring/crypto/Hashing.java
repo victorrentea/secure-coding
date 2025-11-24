@@ -15,10 +15,10 @@ public class Hashing {
 
   @Test
   public void hashingIntroDemo() throws NoSuchAlgorithmException {
-    System.out.println("one way only: cannot infer the original message from the hash");
+    System.out.println("1) one way only: cannot infer the original message from the hash");
     hashText("The quick brown fox jumped over the lazy dog.");
 
-    System.out.println("deterministic: same input => same hash");
+    System.out.println("2) deterministic: same input => same hash");
     // TODO hash the same input and see the same output
     hashText("The quick brown fox jumped over the lazy dog.");
 

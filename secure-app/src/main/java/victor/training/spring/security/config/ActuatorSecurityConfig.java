@@ -52,6 +52,7 @@ public class ActuatorSecurityConfig {
 
     http.httpBasic(Customizer.withDefaults()).userDetailsService(actuatorUserDetailsService());
 
+    // TODO de ce totusi serverul raspunde cu Set-Cookie
     http.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // don't emit Set-Cookie
     return http.build();
   }
