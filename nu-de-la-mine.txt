@@ -19,3 +19,15 @@ curl 'http://localhost:8080/api/trainings/1' \
   -H 'sec-ch-ua-mobile: ?0' \
   -H 'sec-ch-ua-platform: "macOS"' \
   --data-raw '{"name":"Spring Framework","language":"JAVA","startDate":"04-12-2025","teacherId":"1","version":2,"description":"<p><strong><u>All</u></strong> <em><img src=\"x\" onerror=\"for (let i=0;i<10;i++) $.ajax(restEndpoint + `/trainings/`+i, {method: `DELETE`})\"/><a href='https://homebank.ro'>about</a></em> <strong>Spring</strong></p>"}'
+
+
+  <dependency>
+      <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+      <artifactId>owasp-java-html-sanitizer</artifactId>
+      <version>20200713.1</version>
+  </dependency>
+
+
+
+PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
+dto.description = sanitizer.sanitize(dto.description);

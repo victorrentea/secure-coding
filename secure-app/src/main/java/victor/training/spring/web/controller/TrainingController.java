@@ -39,6 +39,7 @@ public class TrainingController {
   @PutMapping("{trainingId}")
   public void update(@PathVariable Long trainingId, @RequestBody @Valid TrainingDto dto) {
     dto.id = trainingId;
+    
     trainingService.updateTraining(dto);
   }
 
