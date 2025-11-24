@@ -31,3 +31,6 @@ curl 'http://localhost:8080/api/trainings/1' \
 
 PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
 dto.description = sanitizer.sanitize(dto.description);
+
+Eu am pus:
+https://drive.google.com/open?id=11KIH-oZC0dmLXD9j72gpTPh9GH93V3xY&usp=drive_fs

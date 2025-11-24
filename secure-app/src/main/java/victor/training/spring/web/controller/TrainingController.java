@@ -2,6 +2,8 @@ package victor.training.spring.web.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import victor.training.spring.web.controller.dto.TrainingDto;
@@ -21,25 +23,33 @@ public class TrainingController {
     return trainingService.getAllTrainings();
   }
 
-  @GetMapping("{id}")
-  public TrainingDto get(@PathVariable long id) {
-    return trainingService.getTrainingById(id);
-  }
+
 
   @PostMapping("search") // pragmatic HTTP endpoints
   public List<TrainingDto> search(@RequestBody TrainingSearchCriteria criteria) {
     return trainingService.search(criteria);
   }
 
+  @GetMapping("{id}")
+  public TrainingDto get(@PathVariable long id) {
+    TrainingDto dto = trainingService.getTrainingById(id);
+    PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
+    dto.description = sanitizer.sanitize(dto.description);
+    return dto;
+  }
   @PostMapping
   public void create(@RequestBody @Valid TrainingDto dto) {
+    PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
+    dto.description = sanitizer.sanitize(dto.description);
     trainingService.createTraining(dto);
   }
 
   @PutMapping("{trainingId}")
   public void update(@PathVariable Long trainingId, @RequestBody @Valid TrainingDto dto) {
     dto.id = trainingId;
-    
+    // whitelisted only <b>,<i>...
+    PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
+    dto.description = sanitizer.sanitize(dto.description);
     trainingService.updateTraining(dto);
   }
 

@@ -20,6 +20,9 @@ public class TrainingDto {
 	public String teacherName;
 	@JsonFormat(pattern = "dd-MM-yyyy")
 	public LocalDate startDate;
+  //@XssSanitize // iti faci tu un @Aspect pe metode din @RestController
+  //care iau si scaneaza recursiv obiectele DTO primite param dupa
+  // astfel de adnotari sa-i dea cu sanitize
 	public String description;
 	public Long version;
 
