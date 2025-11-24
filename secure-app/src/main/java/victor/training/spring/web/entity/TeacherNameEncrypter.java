@@ -27,12 +27,16 @@ public class TeacherNameEncrypter implements AttributeConverter<String, String> 
   @Override
   @SneakyThrows
   public String convertToDatabaseColumn(String attribute) {
+    // TODO generate iv
+    // TODO encrypt attribute.getBytes() using key + iv
+    // TODO save in db encrypted base64(bytes) + "." + base64(iv)
     return Base64.getEncoder().encodeToString(attribute.getBytes());
   }
 
   @Override
   @SneakyThrows
   public String convertToEntityAttribute(String dbData) {
+    // TODO parse > decrypt
     return new String(Base64.getDecoder().decode(dbData));
   }
 }
