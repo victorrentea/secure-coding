@@ -2,6 +2,7 @@ package victor.training.spring.web.controller.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import victor.training.spring.web.controller.util.RichTextSanitizer;
 import victor.training.spring.web.entity.ContractType;
 import victor.training.spring.web.entity.ProgrammingLanguage;
 import victor.training.spring.web.entity.Training;
@@ -20,9 +21,7 @@ public class TrainingDto {
 	public String teacherName;
 	@JsonFormat(pattern = "dd-MM-yyyy")
 	public LocalDate startDate;
-  //@XssSanitize // iti faci tu un @Aspect pe metode din @RestController
-  //care iau si scaneaza recursiv obiectele DTO primite param dupa
-  // astfel de adnotari sa-i dea cu sanitize
+  @RichTextSanitizer.RichText
 	public String description;
 	public Long version;
 

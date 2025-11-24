@@ -32,27 +32,25 @@ public class ActuatorSecurityConfig {
   @Value("${actuator.security.password}")
   private final String password;
 
-  @Order(1) // less than the MAX_INT default, thus has priority over the rest
+  @Order(1) // less than the MAX_INT (default), thus runs before the main one securing the rest
   @Bean
   public SecurityFilterChain actuatorFilterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable());
 
     // this security filter chain only applies to /actuator/**
-    http.securityMatcher(EndpointRequest.toAnyEndpoint());
-//    http.securityMatcher("/actuator/**"); // equivalent with above
+    http.securityMatcher(EndpointRequest.toAnyEndpoint()); // === http.securityMatcher("/actuator/**");
 
     http.authorizeHttpRequests(authz -> authz
           // http://localhost:8080/actuator/health is unsecured
           .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
 
-          // the rest of actuator:
-//          .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll() // ⚠️NOT IN PROD!
-          .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
+          // the rest of actuator endpoints:
+//          .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll() // ⚠️ DON'T DO THIS IN PROD!
+          .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR") // requires Basic Authorization
     );
 
     http.httpBasic(Customizer.withDefaults()).userDetailsService(actuatorUserDetailsService());
 
-    // TODO de ce totusi serverul raspunde cu Set-Cookie
     http.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // don't emit Set-Cookie
     return http.build();
   }

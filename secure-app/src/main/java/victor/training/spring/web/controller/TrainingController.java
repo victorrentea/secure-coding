@@ -33,23 +33,20 @@ public class TrainingController {
   @GetMapping("{id}")
   public TrainingDto get(@PathVariable long id) {
     TrainingDto dto = trainingService.getTrainingById(id);
-    PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
-    dto.description = sanitizer.sanitize(dto.description);
+    dto.description = sanitizeRichText(dto.description);
     return dto;
   }
   @PostMapping
   public void create(@RequestBody @Valid TrainingDto dto) {
-    PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
-    dto.description = sanitizer.sanitize(dto.description);
+    dto.description = sanitizeRichText(dto.description);
     trainingService.createTraining(dto);
   }
 
   @PutMapping("{trainingId}")
   public void update(@PathVariable Long trainingId, @RequestBody @Valid TrainingDto dto) {
     dto.id = trainingId;
-    // whitelisted only <b>,<i>...
-    PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
-    dto.description = sanitizer.sanitize(dto.description);
+    // hint: sanitizeRichText() TODO undo +others
+    dto.description = sanitizeRichText(dto.description);
     trainingService.updateTraining(dto);
   }
 
@@ -67,4 +64,9 @@ public class TrainingController {
     trainingService.deleteById(trainingId);
   }
 
+  private static String sanitizeRichText(String description) {
+    // allows only <b>,<i>... = "whitelisting"
+    PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
+    return sanitizer.sanitize(description);
+  }
 }
