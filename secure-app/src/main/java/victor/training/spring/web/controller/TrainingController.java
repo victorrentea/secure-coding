@@ -6,6 +6,7 @@ import org.apache.catalina.security.SecurityUtil;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import victor.training.spring.web.controller.dto.TrainingDto;
@@ -65,7 +66,7 @@ public class TrainingController {
   //  (comes as 'admin_for_language' claim in in KeyCloak AccessToken)
   //  -> use SpEL: @accessController.canDeleteTraining(#id)
   //  -> hasPermission + PermissionEvaluator [GEEK]
-
+//  @PreAuthorize("@permissionEvaluatorImpl.hasPermission(authentication, #trainingId, 'Training', 'WRITE')")
 
   // CERINTA: chiar daca ai rolul TRAINING_DELETE,
   // poti sterge cursul doar daca esti admin pe programmingLanguage-ul acelui curs
