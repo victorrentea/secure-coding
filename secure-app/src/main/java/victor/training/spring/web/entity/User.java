@@ -1,6 +1,8 @@
 package victor.training.spring.web.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+
 import java.util.*;
 
 import static java.util.Collections.*;
@@ -17,7 +19,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
     @Enumerated(EnumType.STRING)
+    @Getter
     private ProgrammingLanguage adminForLanguage;
+
     @ElementCollection
     private Set<Long> managedTeacherIds = new HashSet<>();
     public User() {

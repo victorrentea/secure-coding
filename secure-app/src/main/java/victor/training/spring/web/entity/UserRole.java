@@ -3,6 +3,7 @@ package victor.training.spring.web.entity;
 import java.util.*;
 
 public enum UserRole {
+  //  managed by 'entitlements' -> treaba lor
     USER("TRAINING_SEARCH", "TRAINING_EDIT"),
     POWER("TRAINING_SEARCH", "TRAINING_EDIT", "TRAINING_DELETE"),
     ADMIN("TRAINING_SEARCH" ,"TRAINING_EDIT", "TRAINING_DELETE", "TEACHER_EDIT");

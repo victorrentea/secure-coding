@@ -28,6 +28,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        <dependency>
+            <!-- Necesar pentru @Aspect -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
 
         <dependency>
             <!-- monitoring performance with Micrometer -->
@@ -38,7 +43,7 @@
         <dependency>
             <groupId>com.github.gavlyukovskiy</groupId>
             <artifactId>p6spy-spring-boot-starter</artifactId>
-            <version>1.12.1</version>
+            <version>2.0.0</version>
         </dependency>
         <dependency>
             <!-- Enables auto-completion in application.properties in IntelliJ based on @ConfigurationProperties -->
@@ -72,11 +77,7 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
-        <dependency>
-            <groupId>p6spy</groupId>
-            <artifactId>p6spy</artifactId>
-            <version>3.9.1</version>
-        </dependency>
+        <!-- Remove direct p6spy core to avoid version conflicts; starter brings it transitively -->
 
         <dependency>
             <groupId>commons-io</groupId>
@@ -173,7 +174,8 @@
 
         <dependency>
             <groupId>io.github.resilience4j</groupId>
-            <artifactId>resilience4j-spring-boot2</artifactId>
+            <artifactId>resilience4j-spring-boot3</artifactId>
+            <version>2.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
