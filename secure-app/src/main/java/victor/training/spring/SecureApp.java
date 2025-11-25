@@ -49,16 +49,17 @@ public class SecureApp {
         .run(args);
   }
 
+  @Bean
+  public RestTemplate restTemplate(RestTemplateBuilder builder) {
+    return builder
+        .build();
+  }
+
   @Autowired
   private Environment environment;
 
   @Autowired
   private DataSource dataSource;
-
-  @Bean // auto-instrumented by micrometer-tracing
-  public RestTemplate restTemplate(RestTemplateBuilder builder) {
-    return builder.build();
-  }
 
   @Bean
   public ThreadPoolTaskExecutor poolBar() {

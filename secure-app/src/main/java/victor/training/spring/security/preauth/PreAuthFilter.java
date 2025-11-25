@@ -1,14 +1,12 @@
-package victor.training.spring.security.config.preauth;
+package victor.training.spring.security.preauth;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 import jakarta.servlet.http.HttpServletRequest;
-import victor.training.spring.web.entity.UserRole;
 
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
@@ -20,12 +18,12 @@ public class PreAuthFilter extends AbstractPreAuthenticatedProcessingFilter {
     @Override
     protected Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest) {
         String username = httpRequest.getHeader("x-user");
-        String rolesStr = httpRequest.getHeader("x-user-roles");
-        if (username == null || rolesStr == null || username.isBlank() || rolesStr.isBlank()) {
-            log.error("'x-user' and 'x-user-roles' NOT found in request headers");
+        String rolesCsv = httpRequest.getHeader("x-user-roles");
+        if (username == null || username.isBlank() || rolesCsv == null || rolesCsv.isBlank()) {
+            log.error("'x-user' or 'x-user-roles' NOT found in request headers");
             return null;
         }
-        List<String> roles = List.of(rolesStr.split(","));
+        List<String> roles = List.of(rolesCsv.split(","));
 
 //        roles = UserRole.expandToSubRoles(roles);
 

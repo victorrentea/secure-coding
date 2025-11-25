@@ -1,6 +1,20 @@
-### GET request to example server with user actuator:Withdeepdedication.
+# @no-cookie-jar
+### GET current user via api key
+GET http://localhost:8080/api/user/current
+X-Api-Key: strongapikey
+
+### GET current user via api key (client-specific)
+GET http://localhost:8080/api/user/current
+X-Api-Key: c1key
+
+### GET current user via basic
+GET http://localhost:8080/api/user/current
+Authorization: Basic user user
+
+### GET actuator metrics
 GET http://localhost:8080/actuator/prometheus
-Authorization: Basic actuator Withdeepdedication.
+Authorization: Basic actuator actuator
+
 
 
 ###

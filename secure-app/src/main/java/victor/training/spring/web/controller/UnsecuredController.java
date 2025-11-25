@@ -1,15 +1,15 @@
-package victor.training.spring.security;
+package victor.training.spring.web.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.security.PermitAll;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class UnsecuredController {
 
-  // TODO allow unsecured access
+  @PermitAll
   @GetMapping("unsecured/welcome")
   public String showWelcomeInfo() {
-    return "Contact Phone";
+    return "In case of problems call Santa: 0800SANTACLAUS";
   }
 }

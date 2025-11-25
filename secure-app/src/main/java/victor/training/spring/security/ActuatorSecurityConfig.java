@@ -1,4 +1,4 @@
-package victor.training.spring.security.config;
+package victor.training.spring.security;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class ActuatorSecurityConfig {
   @PostConstruct
   public void hi() {
-    log.warn("Using");
+    log.warn("Using config");
   }
 
   @Value("${actuator.security.username}")
@@ -35,18 +35,18 @@ public class ActuatorSecurityConfig {
   @Order(1) // less than the MAX_INT (default), thus runs before the main one securing the rest
   @Bean
   public SecurityFilterChain actuatorFilterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable());
-
     // this security filter chain only applies to /actuator/**
     http.securityMatcher(EndpointRequest.toAnyEndpoint()); // === http.securityMatcher("/actuator/**");
+
+    http.csrf(csrf -> csrf.disable());
 
     http.authorizeHttpRequests(authz -> authz
           // http://localhost:8080/actuator/health is unsecured
           .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
 
           // the rest of actuator endpoints:
-//          .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll() // ⚠️ DON'T DO THIS IN PROD!
           .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR") // requires Basic Authorization
+          //.permitAll() // ⚠️ DON'T DO THIS IN PROD!
     );
 
     http.httpBasic(Customizer.withDefaults()).userDetailsService(actuatorUserDetailsService());

@@ -1,4 +1,4 @@
-package victor.training.spring.security.config;
+package victor.training.spring.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

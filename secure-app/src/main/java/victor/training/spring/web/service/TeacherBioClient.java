@@ -4,25 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
-import victor.training.spring.security.config.keycloak.TokenUtils;
-import victor.training.spring.web.controller.util.Sleep;
+import victor.training.spring.security.keycloak.TokenUtils;
 
-import java.net.URI;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Map;
-
-import static org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId;
 import static org.springframework.security.oauth2.client.web.client.RequestAttributePrincipalResolver.principal;
 
 @RequiredArgsConstructor

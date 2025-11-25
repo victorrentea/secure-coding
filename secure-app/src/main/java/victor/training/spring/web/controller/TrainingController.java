@@ -2,11 +2,9 @@ package victor.training.spring.web.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.security.SecurityUtil;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import victor.training.spring.web.controller.dto.TrainingDto;
@@ -59,27 +57,23 @@ public class TrainingController {
     trainingService.updateTraining(dto);
   }
 
-  // TODO Fix UX
-  // TODO Allow also for 'POWER' role; then remove it. => update UI but forget the BE
-  // TODO Allow for authority 'training.delete'
-  // TODO Allow only if the current user manages the programming language of the training
-  //  (comes as 'admin_for_language' claim in in KeyCloak AccessToken)
+  // TODO 1 Fix UX -> expose GET /user/current/current to return authorities
+  // TODO 2 Find
+  // TODO 3 Can only delete training if current user.managedTrainingIds includes training.teacher.id
+  // TODO 4 [opt] Use Can only delete training if current user.managedTrainingIds includes training.teacher.id
   //  -> use SpEL: @accessController.canDeleteTraining(#id)
   //  -> hasPermission + PermissionEvaluator [GEEK]
 //  @PreAuthorize("@permissionEvaluatorImpl.hasPermission(authentication, #trainingId, 'Training', 'WRITE')")
 
   // CERINTA: chiar daca ai rolul TRAINING_DELETE,
-  // poti sterge cursul doar daca esti admin pe programmingLanguage-ul acelui curs
-  // Context: training.programmingLanguage == User.programingLanguage
-//  @Secured({"ROLE_ADMIN"/*, "ROLE_POWER"*/})
-  @Secured("ROLE_TRAINING_DELETE")
+  @Secured("ROLE_ADMIN")
   @DeleteMapping("{trainingId}")
   public void delete(@PathVariable Long trainingId) {
     Training training = trainingRepo.findById(trainingId).orElseThrow();
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
     User user = userRepo.findByUsernameForLogin(username).orElseThrow();
-    if(user.getAdminForLanguage() != training.getProgrammingLanguage()) {
-      throw new SecurityException("You are not allowed to delete this training!");
+    if (!user.getManagedTeacherIds().contains(training.getTeacher().getId())) {
+      throw new SecurityException("You cannot delete training because you are not a manager for teacher " + training.getTeacher().getName());
     }
 
     trainingService.deleteById(trainingId);

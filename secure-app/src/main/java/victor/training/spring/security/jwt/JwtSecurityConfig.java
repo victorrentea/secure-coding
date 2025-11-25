@@ -1,4 +1,4 @@
-package victor.training.spring.security.config.jwt;
+package victor.training.spring.security.jwt;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
-import victor.training.spring.security.config.AddFilterDSL;
+import victor.training.spring.security.AddFilterDSL;
 
 @Slf4j
 @Profile("jwt")
@@ -23,7 +23,7 @@ import victor.training.spring.security.config.AddFilterDSL;
 public class JwtSecurityConfig {
   @PostConstruct
   public void hi() {
-    log.warn("Using");
+    log.warn("Using config");
   }
 
   @Value("${jwt.signature.shared.secret.base64}")

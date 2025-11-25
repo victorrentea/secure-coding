@@ -1,4 +1,4 @@
-package victor.training.spring.security.config.preauth;
+package victor.training.spring.security.preauth;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

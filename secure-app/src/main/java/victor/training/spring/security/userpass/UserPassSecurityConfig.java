@@ -1,10 +1,11 @@
-package victor.training.spring.security.config.userpass;
+package victor.training.spring.security.userpass;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -23,15 +24,15 @@ import static org.springframework.security.web.csrf.CookieCsrfTokenRepository.wi
 @Slf4j
 @Profile("userpass")
 @Configuration
-@EnableWebSecurity // (debug = true) // see the filter chain in use
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class UserPassSecurityConfig {
   @PostConstruct
   public void hi() {
-    log.warn("Using");
+    log.warn("Using config");
   }
 
   @Bean
+  @Order(2)
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable()); // OK if I only expose REST APIs
 
@@ -40,7 +41,7 @@ public class UserPassSecurityConfig {
 //        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()));
 
     // adds a http filter that responds to Bro CORS preflight
-     http.cors(Customizer.withDefaults()); // only if .js files come from a CDN (by default CORS requests get blocked)
+    http.cors(Customizer.withDefaults()); // only if .js files come from a CDN (by default CORS requests get blocked)
 
     http.authorizeHttpRequests(authz -> authz
         //❌EVITA: .requestMatchers(HttpMethod.DELETE, "/api/trainings/*").hasRole("ADMIN")

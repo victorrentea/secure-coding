@@ -12,7 +12,7 @@ import java.util.Date;
 
 @Slf4j
 @Entity
-@Data // not in prod
+@Data // avoid
 public class Training {
 	public static final int LOCK_DURATION_SECONDS = 20;
 	@Id
@@ -21,23 +21,14 @@ public class Training {
 	private String name;
 	private String description;
 	private LocalDate startDate;
-	@ManyToOne
+
+  @ManyToOne
 	private Teacher teacher;
+
 	@Enumerated(EnumType.STRING)
 	private ProgrammingLanguage programmingLanguage;
 
-
-
-	public Training() {
-	}
-	
-	public Training(String name, LocalDate startDate) {
-		this.name = name;
-		this.startDate = startDate;
-	}
-
-
-	// optimistic
+	// optimistic locking
 	@Version
 	private Long version;
 

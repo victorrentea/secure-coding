@@ -1,4 +1,4 @@
-package victor.training.spring.security.config.preauth;
+package victor.training.spring.security.preauth;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
-import victor.training.spring.security.config.AddFilterDSL;
+import victor.training.spring.security.AddFilterDSL;
 
 // this will allow going in just using headers, eg:
 // curl http://localhost:8080/api/trainings -H 'X-User: user' -H 'X-User-Roles: USER'
@@ -25,7 +25,7 @@ import victor.training.spring.security.config.AddFilterDSL;
 public class PreAuthSecurityConfig {
   @PostConstruct
   public void hi() {
-    log.warn("Using");
+    log.warn("Using config");
   }
 
   @Bean

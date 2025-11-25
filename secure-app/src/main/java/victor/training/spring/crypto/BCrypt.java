@@ -10,19 +10,20 @@ public class BCrypt {
   // bcrypt work factor - increase this when average CPU power of machines increases
   public static final int STRENGTH = 10;
 
+  // TO increase power, re-encode it at first user login (when you have the cleartext password); reset user's pass
+
   @Test
   void explore() {
     BCryptPasswordEncoder bcryptEncoder = new BCryptPasswordEncoder(STRENGTH, new SecureRandom());
-    String encodedPassword = bcryptEncoder.encode("parola");
+    String encodedPassword = bcryptEncoder.encode("password");
 
     System.out.println("{bcrypt}" + encodedPassword);
 
     // TODO assert that bcrypt#matches is true
     BCryptPasswordEncoder bcryptMatcher = new BCryptPasswordEncoder(STRENGTH, new SecureRandom());
-    Assertions.assertThat(bcryptMatcher.matches("parola", encodedPassword)).isTrue();
+    Assertions.assertThat(bcryptMatcher.matches("password", encodedPassword)).isTrue();
 
     // TODO assert that bcrypt#matches is false
     Assertions.assertThat(bcryptMatcher.matches("different", encodedPassword)).isFalse();
-
   }
 }

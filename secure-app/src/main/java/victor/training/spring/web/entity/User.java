@@ -2,14 +2,16 @@ package victor.training.spring.web.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
 import static java.util.Collections.*;
-import static victor.training.spring.web.entity.ProgrammingLanguage.JAVA;
 
 @Entity
 @Table(name = "USERS")
+@Getter
+@Setter
 public class User {
     @Id
     @GeneratedValue
@@ -18,46 +20,8 @@ public class User {
     private String name;
     @Enumerated(EnumType.STRING)
     private UserRole role;
-    @Enumerated(EnumType.STRING)
-    @Getter
-    private ProgrammingLanguage adminForLanguage;
-
     @ElementCollection
     private Set<Long> managedTeacherIds = new HashSet<>();
-    public User() {
-    }
-    public User(String fullName, String username, UserRole role, List<Long> managedTeacherIds, ProgrammingLanguage adminForLanguage) {
-        this.username = username;
-        this.name=fullName;
-        this.role = role;
-        this.managedTeacherIds = new HashSet<>(managedTeacherIds);
-        this.adminForLanguage = adminForLanguage;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public Set<Long> getManagedTeacherIds() {
-        return unmodifiableSet(managedTeacherIds);
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public User setName(String name) {
-        this.name = name;
-        return this;
-    }
 
     @Override
     public String toString() {

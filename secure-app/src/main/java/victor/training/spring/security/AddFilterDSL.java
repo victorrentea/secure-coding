@@ -1,4 +1,4 @@
-package victor.training.spring.security.config;
+package victor.training.spring.security;
 
 import jakarta.servlet.Filter;
 import org.springframework.security.authentication.AuthenticationManager;

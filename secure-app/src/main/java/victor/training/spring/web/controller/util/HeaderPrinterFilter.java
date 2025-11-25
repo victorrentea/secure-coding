@@ -1,4 +1,4 @@
-package victor.training.spring.security;
+package victor.training.spring.web.controller.util;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,7 +1,8 @@
-package victor.training.spring.security.config.keycloak;
+package victor.training.spring.security.keycloak;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.security.oauth2.client.endpoint.*;
@@ -10,8 +11,8 @@ import org.springframework.security.oauth2.core.http.converter.OAuth2AccessToken
 import org.springframework.web.client.RestClient;
 
 @Configuration
+@Profile("keycloak")
 public class BackChannelLoggingConfig {
-
 	@Bean
 	public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> authorizationCodeAccessTokenResponseClient() {
     var accessTokenResponseClient = new RestClientAuthorizationCodeTokenResponseClient();
@@ -60,5 +61,4 @@ public class BackChannelLoggingConfig {
         .defaultStatusHandler(new OAuth2ErrorResponseErrorHandler())
         .build();
 	}
-
 }

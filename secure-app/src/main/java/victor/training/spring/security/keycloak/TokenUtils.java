@@ -1,7 +1,5 @@
-package victor.training.spring.security.config.keycloak;
+package victor.training.spring.security.keycloak;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -9,14 +7,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import victor.training.spring.web.controller.dto.CurrentUserDto;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,7 +20,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TokenUtils {
   public static void printTheTokens() {
-    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    printTheTokens(SecurityContextHolder.getContext().getAuthentication());
+  }
+  public static void printTheTokens(Authentication authentication) {
+    Object principal = authentication.getPrincipal();
     if (!(principal instanceof DefaultOidcUser oidcUser)) {
       return;
     }

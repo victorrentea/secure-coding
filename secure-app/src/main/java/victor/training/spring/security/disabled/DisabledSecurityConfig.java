@@ -1,4 +1,4 @@
-package victor.training.spring.security.config.disabled;
+package victor.training.spring.security.disabled;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -20,10 +20,9 @@ import static org.springframework.security.web.csrf.CookieCsrfTokenRepository.wi
 @Configuration
 @EnableWebSecurity
 public class DisabledSecurityConfig {
-
   @PostConstruct
   public void hi() {
-    log.warn("Using");
+    log.warn("Using config");
   }
 
   @Bean
