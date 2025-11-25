@@ -19,6 +19,7 @@ public class UserController {
   @GetMapping("api/user/current")
   public CurrentUserDto getCurrentUser() {
     log.info("Return current user");
+    TokenUtils.printTheTokens();
     CurrentUserDto dto = new CurrentUserDto();
     dto.username = "<todo-username>"; // TODO
 //    dto.authorities = List.of(); // TODO

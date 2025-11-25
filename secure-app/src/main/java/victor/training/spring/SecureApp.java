@@ -18,7 +18,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.core.task.TaskDecorator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.client.OAuth2ClientHttpRequestInterceptor;
+import org.springframework.security.oauth2.client.web.client.RequestAttributePrincipalResolver;
 import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 import victor.training.spring.web.controller.util.TestDBConnectionInitializer;
 
@@ -76,6 +80,20 @@ public class SecureApp {
   public DelegatingSecurityContextAsyncTaskExecutor taskExecutor(ThreadPoolTaskExecutor poolBar) {
     return new DelegatingSecurityContextAsyncTaskExecutor(poolBar);
   }
+
+  @Bean
+  public RestClient restClient() {
+    return RestClient.create();
+  }
+
+//  @Bean
+//  public RestClient restClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+//    var requestInterceptor = new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
+//    requestInterceptor.setPrincipalResolver(new RequestAttributePrincipalResolver());
+//    return RestClient.builder()
+//        .requestInterceptor(requestInterceptor)
+//        .build();
+//  }
 
   @EventListener(ApplicationReadyEvent.class)
   @Order

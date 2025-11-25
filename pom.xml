@@ -25,8 +25,7 @@
 		<module>secure-app-attacker</module>
         <module>cdn</module>
         <module>gateway</module>
-<!--        <module>spring-sso</module>-->
-<!--        <module>spring-micro</module>-->
+        <module>spring-micro</module>
     </modules>
 
     <dependencyManagement>

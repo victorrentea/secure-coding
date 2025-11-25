@@ -29,14 +29,14 @@ public class TokenUtils {
     if (!(principal instanceof DefaultOidcUser oidcUser)) {
       return;
     }
-//    JwtAuthenticationToken t= oidcUser;
 
     log.info("\n-- OpenID Connect Token: {} ", oidcUser.getUserInfo().getClaims());
-    Instant expInstant = oidcUser.getExpiresAt();
-    LocalDateTime expirationTime = expInstant.atZone(ZoneId.systemDefault()).toLocalDateTime();
-    String deltaLeft = LocalTime.MIN.plusSeconds(LocalDateTime.now().until(expirationTime, ChronoUnit.SECONDS)).toString();
+    LocalDateTime expirationTime = oidcUser.getExpiresAt().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    String deltaLeft = expirationTime.isAfter(LocalDateTime.now())?
+      "expires in " + LocalTime.MIN.plusSeconds(LocalDateTime.now().until(expirationTime, ChronoUnit.SECONDS)).toString() :
+      "!EXPIRED!";
     log.info("User: " + oidcUser);
-    log.info("\n-- Access Token 👑 (expires in {} at {}): {}\n{}",
+    log.info("\n-- Access Token 👑 ({} at {} local time): {}\n{}",
         deltaLeft,
         expirationTime,
         getCurrentToken().orElse("N/A"),
