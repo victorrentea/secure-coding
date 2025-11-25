@@ -43,7 +43,7 @@ public class UserPassSecurityConfig {
      http.cors(Customizer.withDefaults()); // only if .js files come from a CDN (by default CORS requests get blocked)
 
     http.authorizeHttpRequests(authz -> authz
-        .requestMatchers(HttpMethod.DELETE, "/api/trainings/*").hasRole("ADMIN")
+        //❌EVITA: .requestMatchers(HttpMethod.DELETE, "/api/trainings/*").hasRole("ADMIN")
         .anyRequest().authenticated()
     );
 
@@ -62,7 +62,7 @@ public class UserPassSecurityConfig {
     UserDetails user = User.withDefaultPasswordEncoder()
         .username("user").password("user").roles("USER").build();
     UserDetails admin = User.withDefaultPasswordEncoder()
-        .username("admin").password("admin").roles("ADMIN").build();
+        .username("admin").password("admin").roles("ADMIN","TRAINING_DELETE").build();
     UserDetails power = User.withDefaultPasswordEncoder()
         .username("power").password("power").roles("POWER").build();
     return new InMemoryUserDetailsManager(user, admin, power);

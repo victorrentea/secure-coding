@@ -165,10 +165,10 @@
             row += '<td>';
             row += `<input type="button" value="Edit" onclick="openEditTraining(${training.id})" />`;
 
-            // if (currentUser.authorities.includes('ROLE_TRAINING_DELETE')) TODO
 
             // if (currentUser.authorities.includes('ROLE_ADMIN') || currentUser.authorities.includes('ROLE_POWER'))
-            if (currentUser.authorities.includes('ROLE_ADMIN'))
+            // if (currentUser.authorities.includes('ROLE_ADMIN'))
+            if (currentUser.authorities.includes('ROLE_TRAINING_DELETE'))
                 row += `<input class="deleteButton" type="button" value="Delete" onclick="deleteTraining(${training.id})" />`;
 
             row += '</td>';
