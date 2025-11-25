@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -42,6 +43,7 @@ public class UserPassSecurityConfig {
      http.cors(Customizer.withDefaults()); // only if .js files come from a CDN (by default CORS requests get blocked)
 
     http.authorizeHttpRequests(authz -> authz
+        .requestMatchers(HttpMethod.DELETE, "/api/trainings/*").hasRole("ADMIN")
         .anyRequest().authenticated()
     );
 

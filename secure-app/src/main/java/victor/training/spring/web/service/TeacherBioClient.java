@@ -39,7 +39,6 @@ public class TeacherBioClient {
   // don't do "new RestTemplate()" but take it from Spring, to allow Sleuth to propagate 'traceId'
   private final RestTemplate rest;
   private final RestClient restClient;
-  private final OAuth2AuthorizedClientManager oAuth2AuthorizedClientManager;
 
 
   // TODO cacheable
@@ -78,33 +77,33 @@ public class TeacherBioClient {
 //                    .compact();
 
 
-//    Map<String, List<String>> header = Map.of("Authorization", List.of("Bearer " + accessToken));
-    log.info("Sending bearer: {}", token);
     return restClient.get()
         .uri(teacherBioUriBase + "/api/teachers/" + teacherId + "/bio")
-        .headers(h->h.setBearerAuth(token))
-//        .attributes(clientRegistrationId("kc"))
-//        .attributes(principal("spring-app"))
+//        .headers(h->h.setBearerAuth(token))
+        .attributes(clientRegistrationId("client-credential"))
+        .attributes(principal("my-application"))
         .retrieve()
         .body(String.class);
   }
 
   private String relayUserAccessToken() {
-    return TokenUtils.getCurrentToken().orElseThrow();
-  }
-
-  private String clientCredentials() {
-    var request = OAuth2AuthorizeRequest
-        .withClientRegistrationId("keycloak")
-        .principal(SecurityContextHolder.getContext().getAuthentication())
-        .build();
-    var client = oAuth2AuthorizedClientManager.authorize(request); // <-- refreshes AT if expired
-    var token = client.getAccessToken().getTokenValue();
-    log.info("Using access token (exp:{}): {}",
-        client.getAccessToken().getExpiresAt().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-        token);
+    String token = TokenUtils.getCurrentToken().orElseThrow();
+    log.info("Sending user JWT bearer: {}", token);
     return token;
   }
+
+//  private String clientCredentials() {
+//    var request = OAuth2AuthorizeRequest
+//        .withClientRegistrationId("client-credential")
+//        .principal("my-application")
+//        .build();
+//    var client = oAuth2AuthorizedClientManager.authorize(request); // <-- refreshes AT if expired
+//    var token = client.getAccessToken().getTokenValue();
+//    log.info("Using access token (exp:{}): {}",
+//        client.getAccessToken().getExpiresAt().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+//        token);
+//    return token;
+//  }
 
 }
 

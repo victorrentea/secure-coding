@@ -34,7 +34,7 @@ public class TokenRolesToLocalRoles implements GrantedAuthoritiesMapper {
     this.expandRoles = expandRoles;
   }
 
-  @Value("${spring.security.oauth2.client.registration.keycloak.client-id}")
+  @Value("${spring.security.oauth2.client.registration.spring-app.client-id}")
   private String clientId;
 
   @Override

@@ -26,7 +26,7 @@ public class ApiKeySecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable());
+    http.csrf(csrf -> csrf.disable()); // Daca procesezi doar requesturi REST (adica nu <form post> jsp/jsf/vaadin)
     http.authorizeHttpRequests(authz -> authz.anyRequest().authenticated());
     http.addFilter(new ApiKeyFilter(apiKey));
     http.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // don't emit Set-Cookie

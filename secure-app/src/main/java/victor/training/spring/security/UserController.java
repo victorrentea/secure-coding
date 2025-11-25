@@ -11,6 +11,7 @@ import victor.training.spring.security.config.keycloak.TokenUtils;
 import victor.training.spring.web.controller.dto.CurrentUserDto;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,9 +22,15 @@ public class UserController {
     log.info("Return current user");
     TokenUtils.printTheTokens();
     CurrentUserDto dto = new CurrentUserDto();
-    dto.username = "<todo-username>"; // TODO
+    dto.username = SecurityContextHolder.getContext().getAuthentication().getName(); //
+    dto.authorities = SecurityContextHolder.getContext().getAuthentication()
+        .getAuthorities()
+        .stream()
+        .map(Objects::toString)
+        .toList();
+
+//    dto.username = "<todo-username>"; // TODO
 //    dto.authorities = List.of(); // TODO
-    dto.authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().map(Object::toString).toList();
     return dto;
   }
 }

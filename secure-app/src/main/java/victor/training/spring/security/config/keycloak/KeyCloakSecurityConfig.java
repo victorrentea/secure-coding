@@ -5,22 +5,31 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.client.OAuth2ClientHttpRequestInterceptor;
+import org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver;
+import org.springframework.security.oauth2.client.web.client.RequestAttributePrincipalResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.web.client.RestClient;
 
 import static victor.training.spring.security.config.keycloak.TokenRolesToLocalRoles.RoleLevel.CLIENT_LEVEL;
 
@@ -47,7 +56,7 @@ class KeyCloakSecurityConfig {
         .failureHandler((req, rsp, ex) -> {
           if (ex instanceof BadCredentialsException) {
             rsp.setStatus(403);
-            rsp.getWriter().write(ex.getMessage());
+            rsp.getWriter().write("Login failed: " + ex.getMessage());
           } else {
             throw ex;
           }
@@ -55,22 +64,18 @@ class KeyCloakSecurityConfig {
     return http.build();
   }
 
-//  @Bean
-//  OAuth2AuthorizedClientManager authorizedClientManager(
-//      ClientRegistrationRepository registrations,
-//      OAuth2AuthorizedClientService authorizedClientService) {
-//
-//    var provider = OAuth2AuthorizedClientProviderBuilder.builder()
-//        .authorizationCode()
-//        .refreshToken()   // <-- enables refresh
-//        .clientCredentials()
-//        .build();
-//
-//    var manager = new AuthorizedClientServiceOAuth2AuthorizedClientManager(
-//        registrations, authorizedClientService);
-//    manager.setAuthorizedClientProvider(provider);
-//    return manager;
-//  }
+  @Bean
+  @Primary
+  public RestClient restClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+    var requestInterceptor = new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
+    requestInterceptor.setPrincipalResolver(new RequestAttributePrincipalResolver());
+    requestInterceptor.setClientRegistrationIdResolver(new RequestAttributeClientRegistrationIdResolver());
+
+    return RestClient.builder()
+        .requestFactory(new HttpComponentsClientHttpRequestFactory())
+        .requestInterceptor(requestInterceptor)
+        .build();
+  }
 
   @Bean
   protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {

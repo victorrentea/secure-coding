@@ -6,6 +6,7 @@ import io.micrometer.core.instrument.Metrics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
@@ -13,13 +14,16 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.core.task.TaskDecorator;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.client.OAuth2ClientHttpRequestInterceptor;
+import org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver;
 import org.springframework.security.oauth2.client.web.client.RequestAttributePrincipalResolver;
 import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 import org.springframework.web.client.RestClient;
@@ -82,18 +86,12 @@ public class SecureApp {
   }
 
   @Bean
+  @ConditionalOnMissingBean(RestClient.class)
   public RestClient restClient() {
     return RestClient.create();
   }
 
-//  @Bean
-//  public RestClient restClient(OAuth2AuthorizedClientManager authorizedClientManager) {
-//    var requestInterceptor = new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
-//    requestInterceptor.setPrincipalResolver(new RequestAttributePrincipalResolver());
-//    return RestClient.builder()
-//        .requestInterceptor(requestInterceptor)
-//        .build();
-//  }
+
 
   @EventListener(ApplicationReadyEvent.class)
   @Order
