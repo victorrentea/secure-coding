@@ -79,9 +79,9 @@ public class TeacherBioClient {
 
     return restClient.get()
         .uri(teacherBioUriBase + "/api/teachers/" + teacherId + "/bio")
-//        .headers(h->h.setBearerAuth(token))
-        .attributes(clientRegistrationId("client-credential"))
-        .attributes(principal("my-application"))
+        .headers(h->h.setBearerAuth(token))
+//        .attributes(clientRegistrationId("client-credential"))
+//        .attributes(principal("my-application"))
         .retrieve()
         .body(String.class);
   }
