@@ -1,12 +1,12 @@
 //package victor.training.spring.security.config.keycloak.clientcredential;
 //
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
+//import org.springframework.context.annotation.bean;
+//import org.springframework.context.annotation.configuration;
 //import org.springframework.security.oauth2.client.*;
-//import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+//import org.springframework.security.oauth2.client.registration.clientregistrationrepository;
 //
-//@Configuration
-//public class ClientCredentialConfig {
+//@configuration
+//public class clientcredentialconfig {
 //
 ////  @Bean
 ////  public OAuth2AuthorizedClientManager authorizedClientManager(

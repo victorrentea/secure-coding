@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import victor.training.spring.web.controller.dto.TrainingDto;
@@ -63,17 +64,18 @@ public class TrainingController {
   // TODO 4 [opt] Use Can only delete training if current user.managedTrainingIds includes training.teacher.id
   //  -> use SpEL: @accessController.canDeleteTraining(#id)
   //  -> hasPermission + PermissionEvaluator [GEEK]
-//  @PreAuthorize("@permissionEvaluatorImpl.hasPermission(authentication, #trainingId, 'Training', 'WRITE')")
 
-  // CERINTA: chiar daca ai rolul TRAINING_DELETE,
   @Secured("ROLE_ADMIN")
+//  @Secured("ROLE_CAN_DELETE_TRAINING")
+//  @PreAuthorize("@permissionEvaluatorImpl.hasPermission(authentication, #trainingId, 'Training', 'WRITE')")
+// @PreAuthorize("hasPermission('TRAINING',#trainigId, 'DELETE')")
   @DeleteMapping("{trainingId}")
   public void delete(@PathVariable Long trainingId) {
     Training training = trainingRepo.findById(trainingId).orElseThrow();
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
     User user = userRepo.findByUsernameForLogin(username).orElseThrow();
     if (!user.getManagedTeacherIds().contains(training.getTeacher().getId())) {
-      throw new SecurityException("You cannot delete training because you are not a manager for teacher " + training.getTeacher().getName());
+      throw new SecurityException("You cannot delete training because you are not a manager for this teacher " + training.getTeacher().getName());
     }
 
     trainingService.deleteById(trainingId);
