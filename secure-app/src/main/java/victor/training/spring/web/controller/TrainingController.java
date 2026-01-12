@@ -33,23 +33,29 @@ public class TrainingController {
 
   @PostMapping("search") // pragmatic HTTP endpoints
   public List<TrainingDto> search(@RequestBody TrainingSearchCriteria criteria) {
-    return trainingService.search(criteria);
+    List<TrainingDto> results = trainingService.search(criteria);
+    for (TrainingDto dto : results) {
+      dto.description = sanitizeRichText(dto.description);
+    }
+    return results;
   }
 
   @GetMapping("{id}")
   public TrainingDto get(@PathVariable long id) {
     TrainingDto dto = trainingService.getTrainingById(id);
+    dto.description = sanitizeRichText(dto.description);
     return dto;
   }
   @PostMapping
   public void create(@RequestBody @Valid TrainingDto dto) {
+    dto.description = sanitizeRichText(dto.description);
     trainingService.createTraining(dto);
   }
 
   @PutMapping("{trainingId}")
   public void update(@PathVariable Long trainingId, @RequestBody @Valid TrainingDto dto) {
     dto.id = trainingId;
-    // TODO use sanitizeRichText(); here + anywhere else?...
+    dto.description = sanitizeRichText(dto.description);
     trainingService.updateTraining(dto);
   }
 
@@ -81,5 +87,6 @@ public class TrainingController {
     // also see RichTextSanitizer
     PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
     return sanitizer.sanitize(description);
+    // throw / encode &lt; / skip the suspicious
   }
 }
