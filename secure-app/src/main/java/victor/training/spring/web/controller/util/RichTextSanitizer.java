@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Collection;
 
-@Aspect
+//@Aspect
 @Slf4j
 @Component
 public class RichTextSanitizer {
