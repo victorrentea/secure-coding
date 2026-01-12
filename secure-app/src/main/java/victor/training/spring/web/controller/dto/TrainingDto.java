@@ -23,6 +23,7 @@ public class TrainingDto {
 	public LocalDate startDate;
   @RichTextSanitizer.RichText
 	public String description;
+//	public RichString description;
 	public Long version;
 
 	public TrainingDto() {}

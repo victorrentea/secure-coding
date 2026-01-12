@@ -14,9 +14,9 @@ public class GlobalCorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
 //                registry.addMapping("/api/*") nu prinde /api/trainings/2
                 registry.addMapping("/api/**")
-                        .allowedMethods("*")
+                        .allowedMethods("*") // GET, POST, PUT, DELETE, OPTIONS
                         .allowCredentials(true) // allows receiving session cookie (if using cookies)
-                        .allowedOriginPatterns("http://localhost:8081") // ✅ CDN eg NodeJS
+                        .allowedOriginPatterns("http://localhost:8081") // ✅ CDN eg NodeJS "cdn.dkv.com"
 //					              .allowedOriginPatterns("http://*") // ❌ Too broad
                 ;
                 // also don't forget to add .cors() to spring security config to setup http CORS filter
