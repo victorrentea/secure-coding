@@ -31,8 +31,6 @@ public class TrainingController {
     return trainingService.getAllTrainings();
   }
 
-
-
   @PostMapping("search") // pragmatic HTTP endpoints
   public List<TrainingDto> search(@RequestBody TrainingSearchCriteria criteria) {
     return trainingService.search(criteria);
@@ -41,20 +39,17 @@ public class TrainingController {
   @GetMapping("{id}")
   public TrainingDto get(@PathVariable long id) {
     TrainingDto dto = trainingService.getTrainingById(id);
-    dto.description = sanitizeRichText(dto.description);
     return dto;
   }
   @PostMapping
   public void create(@RequestBody @Valid TrainingDto dto) {
-    dto.description = sanitizeRichText(dto.description);
     trainingService.createTraining(dto);
   }
 
   @PutMapping("{trainingId}")
   public void update(@PathVariable Long trainingId, @RequestBody @Valid TrainingDto dto) {
     dto.id = trainingId;
-    // hint: sanitizeRichText() TODO undo +others
-    dto.description = sanitizeRichText(dto.description);
+    // TODO use sanitizeRichText(); here + anywhere else?...
     trainingService.updateTraining(dto);
   }
 

@@ -27,16 +27,34 @@ public class TeacherNameEncrypter implements AttributeConverter<String, String> 
   @Override
   @SneakyThrows
   public String convertToDatabaseColumn(String attribute) {
+    return Base64.getEncoder().encodeToString(attribute.getBytes());
+
     // TODO generate iv
     // TODO encrypt attribute.getBytes() using key + iv
     // TODO save in db encrypted base64(bytes) + "." + base64(iv)
-    return Base64.getEncoder().encodeToString(attribute.getBytes());
+//    Cipher encrypt = Cipher.getInstance("AES/CBC/PKCS5Padding");
+//    var iv = SymmetricEncryption.generateIv();
+//    encrypt.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+//    byte[] encryptedOutput = encrypt.doFinal(attribute.getBytes());
+//
+//    return Base64.getEncoder().encodeToString(encryptedOutput) +
+//        "." +
+//        Base64.getEncoder().encodeToString(iv);
   }
 
   @Override
   @SneakyThrows
   public String convertToEntityAttribute(String dbData) {
-    // TODO parse > decrypt
     return new String(Base64.getDecoder().decode(dbData));
+
+    // TODO parse > decrypt
+//    String[] parts = dbData.split("\\.");
+//    byte[] encryptedData = Base64.getDecoder().decode(parts[0]);
+//    byte[] iv = Base64.getDecoder().decode(parts[1]);
+//
+//    Cipher decrypt = Cipher.getInstance("AES/CBC/PKCS5Padding");
+//    decrypt.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
+//    byte[] decryptedOutput = decrypt.doFinal(encryptedData);
+//    return new String(decryptedOutput);
   }
 }

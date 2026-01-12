@@ -18,8 +18,9 @@ public class Teacher {
 	@Enumerated(EnumType.STRING)
 	private ContractType contractType;
 
-  @Convert(converter = TeacherNameEncrypter.class) // TODO undo
+  @Convert(converter = TeacherNameEncrypter.class) // encryption at rest
 	private String name;
+
 	@OneToMany(mappedBy = "teacher")
 	private List<Training> trainings = new ArrayList<>();
 
