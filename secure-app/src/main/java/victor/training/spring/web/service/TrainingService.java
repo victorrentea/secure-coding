@@ -2,6 +2,7 @@ package victor.training.spring.web.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,11 +95,15 @@ public class TrainingService {
         //training.finishEdit(SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
+//    @Secured("ROLE_ADMIN") // this works via AOP= a subclass (a proxy) of this class is created at runtime where
+    // that will check before calling this method
+    // the current user roles are extracted SecurityContextHolder.getContext()... behind the scenes
     public void deleteById(Long id) {
         trainingRepo.deleteById(id);
     }
 
     public List<TrainingDto> search(TrainingSearchCriteria criteria) {
+//        deleteById(1L); // @Secured doesnt work! = security breach
         return trainingSearchRepo.search(criteria).stream()
             .map(TrainingDto::new)
             .collect(toList());

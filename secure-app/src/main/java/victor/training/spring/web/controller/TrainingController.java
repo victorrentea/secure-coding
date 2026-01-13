@@ -1,5 +1,6 @@
 package victor.training.spring.web.controller;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.owasp.html.PolicyFactory;
@@ -63,18 +64,19 @@ public class TrainingController {
   //  -> use SpEL: @accessController.canDeleteTraining(#id)
   //  -> hasPermission + PermissionEvaluator [GEEK]
 
-  @Secured("ROLE_ADMIN")
+//  @RolesAllowed()
+  @Secured({"ROLE_ADMIN","ROLE_POWER"})
 //  @Secured("ROLE_CAN_DELETE_TRAINING")
 //  @PreAuthorize("@permissionEvaluatorImpl.hasPermission(authentication, #trainingId, 'Training', 'WRITE')")
 // @PreAuthorize("hasPermission('TRAINING',#trainigId, 'DELETE')")
   @DeleteMapping("{trainingId}")
   public void delete(@PathVariable Long trainingId) {
-    Training training = trainingRepo.findById(trainingId).orElseThrow();
-    String username = SecurityContextHolder.getContext().getAuthentication().getName();
-    User user = userRepo.findByUsernameForLogin(username).orElseThrow();
-    if (!user.getManagedTeacherIds().contains(training.getTeacher().getId())) {
-      throw new SecurityException("You cannot delete training because you are not a manager for this teacher " + training.getTeacher().getName());
-    }
+//    Training training = trainingRepo.findById(trainingId).orElseThrow();
+//    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+//    User user = userRepo.findByUsernameForLogin(username).orElseThrow();
+//    if (!user.getManagedTeacherIds().contains(training.getTeacher().getId())) {
+//      throw new SecurityException("You cannot delete training because you are not a manager for this teacher " + training.getTeacher().getName());
+//    }
 
     trainingService.deleteById(trainingId);
   }
