@@ -167,8 +167,8 @@
 
 
             // if (currentUser.authorities.includes('ROLE_ADMIN'))
-            // if (currentUser.authorities.includes('ROLE_TRAINING_DELETE'))
-            if (currentUser.authorities.includes('ROLE_ADMIN') || currentUser.authorities.includes('ROLE_POWER'))
+            // if (currentUser.authorities.includes('ROLE_CAN_DELETE_TRAINING'))✅✅
+            if (currentUser.authorities.includes('ROLE_ADMIN') )
                 row += `<input class="deleteButton" type="button" value="Delete" onclick="deleteTraining(${training.id})" />`;
 
             row += '</td>';

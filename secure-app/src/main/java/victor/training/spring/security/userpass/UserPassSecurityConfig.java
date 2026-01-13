@@ -44,8 +44,10 @@ public class UserPassSecurityConfig {
     http.cors(Customizer.withDefaults()); // only if .js files come from a CDN (by default CORS requests get blocked)
 
     http.authorizeHttpRequests(authz -> authz
-        //❌EVITA: .requestMatchers(HttpMethod.DELETE, "/api/trainings/*").hasRole("ADMIN")
-        .anyRequest().authenticated()
+        //❌AVOID this approach, prefer method-level security annotations:
+//        .requestMatchers(HttpMethod.DELETE, "/api/trainings/*").hasRole("ADMIN") // worse equiv of @Secured
+
+            .anyRequest().authenticated()
     );
 
     http.formLogin(Customizer.withDefaults()) // display a login page

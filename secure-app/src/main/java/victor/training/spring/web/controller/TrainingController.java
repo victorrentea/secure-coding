@@ -65,18 +65,22 @@ public class TrainingController {
   //  -> hasPermission + PermissionEvaluator [GEEK]
 
 //  @RolesAllowed()
-  @Secured({"ROLE_ADMIN","ROLE_POWER"})
-//  @Secured("ROLE_CAN_DELETE_TRAINING")
-//  @PreAuthorize("@permissionEvaluatorImpl.hasPermission(authentication, #trainingId, 'Training', 'WRITE')")
-// @PreAuthorize("hasPermission('TRAINING',#trainigId, 'DELETE')")
+//  @Secured({"ROLE_ADMIN","ROLE_POWER"})
+//  @Secured("ROLE_CAN_DELETE_TRAINING")✅✅
+//  @PreAuthorize("@permissionService.hasPermission(authentication, #trainingId, 'Training', 'WRITE')")
+ @PreAuthorize("hasPermission('TRAINING',#trainigId, 'DELETE')")
   @DeleteMapping("{trainingId}")
   public void delete(@PathVariable Long trainingId) {
+    //A) manual
 //    Training training = trainingRepo.findById(trainingId).orElseThrow();
 //    String username = SecurityContextHolder.getContext().getAuthentication().getName();
 //    User user = userRepo.findByUsernameForLogin(username).orElseThrow();
 //    if (!user.getManagedTeacherIds().contains(training.getTeacher().getId())) {
 //      throw new SecurityException("You cannot delete training because you are not a manager for this teacher " + training.getTeacher().getName());
 //    }
+
+    // B: if this above repeats, extract it into a dedicated @Service called via @PreAuthorize
+    // C: if it's super-complex, use a custom PermissionEvaluator + hasPermission() http://docs.spring.io/spring-security/site/docs/current/reference/html5/#domain-acls
 
     trainingService.deleteById(trainingId);
   }
