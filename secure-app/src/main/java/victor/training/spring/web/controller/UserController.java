@@ -20,13 +20,18 @@ public class UserController {
   public CurrentUserDto getCurrentUser() {
     log.info("Return current user");
     CurrentUserDto dto = new CurrentUserDto();
-//    dto.username = "<todo-username>"; // TODO
-//    dto.authorities = List.of(); // TODO
-    dto.username = SecurityContextHolder.getContext().getAuthentication().getName();
-    dto.authorities = SecurityContextHolder.getContext().getAuthentication()
+    // thread local data; returns null if not in an HTTP thread:
+      // eg in @KafkaListener, @Scheduled, @Async
+    dto.username = SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getName(); // whatever the authn mechanism used
+
+    dto.authorities = SecurityContextHolder.getContext()
+        .getAuthentication()
         .getAuthorities()
+        // list of permissions extracted from the token
         .stream()
-        .map(Objects::toString)
+        .map(Object::toString)
         .toList();
     return dto;
   }
