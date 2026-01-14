@@ -68,6 +68,7 @@ public class TrainingController {
 //  @Secured("ROLE_TRAINING_DELETE")
 
 //  @PreAuthorize("@permissionService.canDeleteTraining(#trainingId)") // b
+
 //  @PreAuthorize("hasPermission(#trainingId, 'TRAINING', 'WRITE')") // c
 
   @DeleteMapping("{trainingId}")
