@@ -5,4 +5,5 @@ import java.util.List;
 public class CurrentUserDto {
    public String username;
    public List<String> authorities;
+   public List<Long> managedTeacherIds;
 }

@@ -29,8 +29,8 @@ public class InitialData {
     log.info("Inserting initial training data");
 
 
-    Teacher victor = teacherRepo.save(new Teacher("Victor").setContractType(ContractType.INDEPENDENT));
-    Teacher ionut = teacherRepo.save(new Teacher("Ionut").setContractType(ContractType.PART));
+    Teacher victor = teacherRepo.save(new Teacher("Victor.1").setContractType(ContractType.INDEPENDENT));
+    Teacher ionut = teacherRepo.save(new Teacher("Ionut.2").setContractType(ContractType.PART));
 
     Training spring = new Training()
         .setName("Spring Framework")

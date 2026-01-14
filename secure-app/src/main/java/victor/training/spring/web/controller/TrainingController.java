@@ -31,16 +31,16 @@ public class TrainingController {
     return trainingService.getAllTrainings();
   }
 
-  @PostMapping("search") // pragmatic HTTP endpoints
+  @PostMapping("search")
   public List<TrainingDto> search(@RequestBody TrainingSearchCriteria criteria) {
     return trainingService.search(criteria);
   }
 
   @GetMapping("{id}")
   public TrainingDto get(@PathVariable long id) {
-    TrainingDto dto = trainingService.getTrainingById(id);
-    return dto;
+    return trainingService.getTrainingById(id);
   }
+
   @PostMapping
   public void create(@RequestBody @Valid TrainingDto dto) {
     trainingService.createTraining(dto);
@@ -49,29 +49,36 @@ public class TrainingController {
   @PutMapping("{trainingId}")
   public void update(@PathVariable Long trainingId, @RequestBody @Valid TrainingDto dto) {
     dto.id = trainingId;
-    // TODO use sanitizeRichText(); here + anywhere else?...
+    // TODO sanitizeRichText() against XSS + where else?...
     trainingService.updateTraining(dto);
   }
 
-  // TODO 1 Fix UX -> expose GET /user/current/current to return authorities
-  // TODO 2 Find
-  // TODO 3 Can only delete training if current user.managedTrainingIds includes training.teacher.id
-  // TODO 4 [opt] Use Can only delete training if current user.managedTrainingIds includes training.teacher.id
-  //  -> use SpEL: @accessController.canDeleteTraining(#id)
-  //  -> hasPermission + PermissionEvaluator [GEEK]
+  // TODO 1 Hide button in UI if not authorized: FE gets roles via /user/current/current to return authorities
+  // TODO 2 ROLE_POWER should also be allowed to delete; then remove it
+  //  => move to fine-grained role: ROLE_TRAINING_DELETE
+  // TODO 3 To delete, current_user.managedTrainingIds must includes training.teacher.id
+  //  a) ad-hoc in this method
+  //  b) @permissionService.canDeleteTraining(#trainingId) => see PermissionService
+  //  c) hasPermission(..) => see PermissionEvaluatorImpl
 
   @Secured("ROLE_ADMIN")
-//  @Secured("ROLE_CAN_DELETE_TRAINING")
-//  @PreAuthorize("@permissionEvaluatorImpl.hasPermission(authentication, #trainingId, 'Training', 'WRITE')")
-// @PreAuthorize("hasPermission('TRAINING',#trainigId, 'DELETE')")
+  @PreAuthorize("hasRole('ROLE_POWER')") // equivalent
+
+// fine-grained role
+//  @Secured("ROLE_TRAINING_DELETE")
+
+//  @PreAuthorize("@permissionService.canDeleteTraining(#trainingId)") // b
+//  @PreAuthorize("hasPermission(#trainingId, 'TRAINING', 'WRITE')") // c
+
   @DeleteMapping("{trainingId}")
   public void delete(@PathVariable Long trainingId) {
-    Training training = trainingRepo.findById(trainingId).orElseThrow();
-    String username = SecurityContextHolder.getContext().getAuthentication().getName();
-    User user = userRepo.findByUsernameForLogin(username).orElseThrow();
-    if (!user.getManagedTeacherIds().contains(training.getTeacher().getId())) {
-      throw new SecurityException("You cannot delete training because you are not a manager for this teacher " + training.getTeacher().getName());
-    }
+    // a)
+//    Training training = trainingRepo.findById(trainingId).orElseThrow();
+//    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+//    User user = userRepo.findByUsername(username).orElseThrow();
+//    if (!user.getManagedTeacherIds().contains(training.getTeacher().getId())) {
+//      throw new SecurityException("You cannot delete training because you are not a manager for this teacher " + training.getTeacher().getName());
+//    }
 
     trainingService.deleteById(trainingId);
   }

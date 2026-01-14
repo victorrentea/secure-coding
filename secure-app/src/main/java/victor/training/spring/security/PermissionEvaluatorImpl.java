@@ -2,7 +2,11 @@ package victor.training.spring.security;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -17,14 +21,26 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-public class Permissions implements PermissionEvaluator {
+public class PermissionEvaluatorImpl implements PermissionEvaluator {
    private final TrainingRepo trainingRepo;
+
+   @Configuration
+   public static class Config {
+      @Bean
+      MethodSecurityExpressionHandler methodSecurityExpressionHandler(PermissionEvaluatorImpl evaluator) {
+         var h = new DefaultMethodSecurityExpressionHandler();
+         h.setPermissionEvaluator(evaluator);
+         return h;
+      }
+   }
+
 
    private enum PermissionType {
       WRITE, READ
    }
    @Override
    public boolean hasPermission(Authentication auth, Object targetDomainObject, Object permission) {
+      log.debug("Checking permission '{}' for user '{}' on object '{}'", permission, auth.getName(), targetDomainObject);
       if ((auth == null) || (targetDomainObject == null) || !(permission instanceof String)) {
          return false;
       }
@@ -37,6 +53,8 @@ public class Permissions implements PermissionEvaluator {
 
    @Override
    public boolean hasPermission(Authentication auth, Serializable targetId, String targetType, Object permission) {
+      log.debug("Checking permission '{}' for user '{}' on object '{}' id:{}",
+          permission, auth.getName(), targetType, targetId);
       if ((auth == null) || (targetType == null) || !(permission instanceof String)) {
          return false;
       }
@@ -58,20 +76,14 @@ public class Permissions implements PermissionEvaluator {
       if (permission == PermissionType.READ) {
          return true;
       }
-      if (authentication.getAuthorities().stream()
-              .map(GrantedAuthority::getAuthority)
-              .noneMatch(t -> t.equals("training.edit"))) {
-         log.debug("No authority to edit trainings");
-         return false;
-      }
       Set<Long> teacherIds = getManagedTeacherIdsFromUsersTable(authentication);
+//      Set<Long> teacherIds = getManagedTeacherIdsFromAccessToken(authentication);
       log.info("Current user manages teacher IDs = {}", teacherIds);
       Long teacherId = trainingRepo.findById(trainingId).get().getTeacher().getId();
       log.info("Training.teacher.id = {}", teacherId);
       return teacherIds.contains(teacherId);
    }
 
-   // keycloak version
    private Set<Long> getManagedTeacherIdsFromAccessToken(Authentication authentication) {
 //      KeycloakPrincipal<KeycloakSecurityContext> keycloakPrincipal = (KeycloakPrincipal<KeycloakSecurityContext>) authentication.getPrincipal();
 //      keycloakPrincipal.getKeycloakSecurityContext().getToken()
@@ -80,9 +92,10 @@ public class Permissions implements PermissionEvaluator {
    }
 
    private final UserRepo userRepo;
+
    private Set<Long> getManagedTeacherIdsFromUsersTable(Authentication authentication) {
       String username = authentication.getName();
-      User user = userRepo.findByUsernameForLogin(username)
+      User user = userRepo.findByUsername(username)
               .orElseThrow(()->new IllegalArgumentException("User '" + username + "' not found in USERS table."));
       return user.getManagedTeacherIds();
       // When using token-based authorization, the user from DB is typically cached in the user session

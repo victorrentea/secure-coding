@@ -1,6 +1,7 @@
 package victor.training.spring.security.userpass;
 
 import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,6 +21,9 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
+import victor.training.spring.web.entity.UserRole;
+
+import java.util.List;
 
 import static org.springframework.security.web.csrf.CookieCsrfTokenRepository.withHttpOnlyFalse;
 
@@ -63,10 +69,23 @@ public class UserPassSecurityConfig {
     UserDetails user = User.withDefaultPasswordEncoder()
         .username("user").password("user").roles("USER").build();
     UserDetails admin = User.withDefaultPasswordEncoder()
-        .username("admin").password("admin").roles("ADMIN","TRAINING_DELETE").build();
+        .username("admin").password("admin").roles("ADMIN").build();
     UserDetails power = User.withDefaultPasswordEncoder()
         .username("power").password("power").roles("POWER").build();
     return new InMemoryUserDetailsManager(user, admin, power);
+//    return new InMemoryUserDetailsManager(expandRoles(user), expandRoles(admin), expandRoles(power));
+  }
+
+  private UserDetails expandRoles(UserDetails user) {
+    log.info("User '{}' has roles {}", user.getUsername(), user.getAuthorities());
+    var expendedRoles = user.getAuthorities().stream()
+        .map(authority -> authority.getAuthority().substring("ROLE_".length()))
+        .flatMap(roleName -> UserRole.expandToSubRoles(List.of(roleName)).stream())
+        .map(SimpleGrantedAuthority::new)
+        .toList();
+    return User.withUserDetails(user)
+        .authorities(expendedRoles)
+        .build();
   }
 
 }
