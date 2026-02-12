@@ -40,11 +40,10 @@ public class UserPassSecurityConfig {
   @Bean
   @Order(2)
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//    http.csrf(csrf -> csrf.disable()); // OK if I only expose REST APIs
-
-    http.csrf(csrf -> csrf //In case I take <form> post (eg JSP)
-        .csrfTokenRepository(withHttpOnlyFalse())
-        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()));
+    http.csrf(csrf -> csrf.disable()); // OK if I only expose REST APIs
+//    http.csrf(csrf -> csrf //In case I take <form> post (eg JSP)
+//        .csrfTokenRepository(withHttpOnlyFalse())
+//        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()));
 
     // adds a http filter that responds to Bro CORS preflight
     http.cors(Customizer.withDefaults()); // only if .js files come from a CDN (by default CORS requests get blocked)
