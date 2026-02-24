@@ -6,7 +6,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.security.SecureRandom;
 
-public class BCrypt {
+public class BCrypt { // the only sane way to store password
+
   // bcrypt work factor - increase this when average CPU power of machines increases
   public static final int STRENGTH = 10;
 
@@ -17,8 +18,9 @@ public class BCrypt {
     BCryptPasswordEncoder bcryptEncoder = new BCryptPasswordEncoder(STRENGTH, new SecureRandom());
     String encodedPassword = bcryptEncoder.encode("password");
 
-    System.out.println("{bcrypt}" + encodedPassword);
+    System.out.println("YOu store in DB/.property this: {bcrypt}" + encodedPassword);
 
+    // later on when a user:pass combination has to be checked, you do:
     // TODO assert that bcrypt#matches is true
     BCryptPasswordEncoder bcryptMatcher = new BCryptPasswordEncoder(STRENGTH, new SecureRandom());
     Assertions.assertThat(bcryptMatcher.matches("password", encodedPassword)).isTrue();
@@ -26,4 +28,9 @@ public class BCrypt {
     // TODO assert that bcrypt#matches is false
     Assertions.assertThat(bcryptMatcher.matches("different", encodedPassword)).isFalse();
   }
+
+
+  //
+
+
 }

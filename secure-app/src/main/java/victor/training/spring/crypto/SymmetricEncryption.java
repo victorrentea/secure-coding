@@ -16,8 +16,8 @@ public class SymmetricEncryption {
 
   @Test
   public void testSymmetricEncryption() throws GeneralSecurityException {
-//      Key key = generateSymmetricKey();
-    Key key = parseSymmetricKeyFromBase64("PAfo78wex8ncPKeixDT3NAcFO/5orNKO");
+      Key key = generateSymmetricKey();
+//    Key key = parseSymmetricKeyFromBase64("PAfo78wex8ncPKeixDT3NAcFO/5orNKO");
     Utils.printByteArray("key", key.getEncoded());
 
     // === get a random Initialization Vector (IV) aka "nonce" = number-used-once
