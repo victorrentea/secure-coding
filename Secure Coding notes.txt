@@ -1,0 +1,121 @@
+Secure Coding notes.txt
+=== context food for your AI friend tomorrow
+
+=== base64encoding = transform a series of bytes into a sequence of characters in a certain alphabet (eg: A-Z, a-z, 0-9, +, /)
+=== checksum (eg CRC, SHA) 
+  - one part of the data is used to check there for typos in the remaining text
+  - RO[49]BTRLRONCRT0211064001 -> 49 is the checksum https://wise.com/gb/iban/checker
+
+=== salting/nonce = add random string to increase the entropy to defend against rainbow table attacks
+  - this string is harder to attack by letter frequency
+  - adding 1 random letter in between any other 2 = 
+  - tahbics sdterfignhg ijs hkalrmdneor tpo aqtrtsaucvk bwy lxeytztqerr farbecqdueefngchy
+
+=== encryption = hide/protect sensitive data
+
+=== symmetric encryption = same K is used for encryption and decryption
+  - you need a large key; rotate it
+  - very fast, CPU-efficient
+
+=== asymmetric encryption
+  = what is encrypted with the public key can only be decrypted with the private key and vice versa
+  - private key (v) = only you have it, keep it secret (eg: USB stick, on your drive, on your badge)
+  - public key (p) = everyone can have it, share it freely
+
+=== A) Storing a password to validate an incoming password
+  - Storing Human User Password in the DB (= Antipattern)
+    ☢️ Humans suck at finding passwords: One pass in all systems; when expired vic08REN! -> ic08REN!v
+    ✅ DON'T, use SSO!
+  - to check if the user:pass combination they give ⭐️matches⭐️ what you know => don't ENCRYPT password, but bcrypt them
+  - practical example: actuator using Basic Authorization with user/pass, checked vs {bcrypt}-ed password in your properties
+  USER table:
+  | id | username | plain-text password | encrypted password  using the same nonce|
+  |----|----------|---------------------|----
+  | 1  | alice    | password123         | oeuty47934y975263579
+  | 2  | bob      | password123         | oeuty47934y975263579
+
+  - how to increase the strength of existing user bcrypted passwords?
+    - ❌forcefully ask all users to rest their passwords😱🤢🤢🤢🤮🤮🤮
+    - ✅at the very next login, when plaintext password comes in on the network, check the strength of the bcrypted value in DB and if < 12, re-bcrypt(12) => overwrite the DB value
+
+=== B) Storing a password to send to another system
+  - You need the plain-text password. 
+  - Where to store it/get it from?
+  > environment variables export DB_PASSWORD 
+  > startup.sh on prod mahine: command line java -jar -Ddb.password=08927
+  > Vault ⭐️
+    + no plain text on some random machine
+    + `top` prints java command line including -Ddb.password
+    + write history/audit: what user changed that password + when 
+    + read access history: when was this key actually last used?
+    + key rotation [even without instances' restart]
+
+=== The GDPR "right to be forgotten"
+  - hard if custoemr data stored in 10 DB on 3 continents, 3 Kafka brokers and 1 Rabbit, + a data lake
+  - All the data you ever store about that single customer, wherever you store it or send it on message or wherever it is, it is encrypted with the same personal symmetric key of that human. If they come to you and they want to be forgotten, you just burn the key. And there is a central system which manages the GDPR PII keys of all the individuals, and you just have to go to that system, nuke the key, and you've forgotten the guy. 
+  - Also avoid copying the information of that person all over the place, especially in clouds. You anonymize and de-anonymize when you go off or back on prem. 
+
+
+=== Hashing
+  - Features:
+    - highly sensitive to changes
+    - one-way (can't get the original data)❌
+    - low-collision
+  - Example algorithms: 
+    - MD5(☠️RIP)
+    - SHA-256, -512 bits = 64 bytes
+  - Practical use-case: 
+    - comparing big data sets: 
+    hash(payments_10G_1.xml) === hash(payments_10G_2.xml) 
+      => very very very...very likely they contents are the same.
+    utorrent
+
+=== Digital Signature
+  you receive a .pdf (1MB) from IRS
+  - Goal1: non-repudiation = prove in court that the sender of M is IRS
+  - Goal2: integrity protection = no one tampered the M contents
+  - you get M + sha(M) = not enough: a 😈Man in the middle could swap originals with M' + sha(M')
+  - you get M + enc(sha(M),v_irs)
+  - a digital signature =  hash(message) asym encrypted with senders' private key
+  #1✅: you honour, if I take dec(enc(sha(M),v_irs),p_irs) = sha(M)
+  #2✅: 😈changes M->M'; you received M' + enc(sha(M),v_irs) => 
+          dec(enc(sha(M),v_irs),p_irs) = sha(M) != sha(M') => tampered with!❌
+  ☢️ Collisions (don't use MD5). 😈 finds a M' whose hash = M
+  ☢️ 😈 generates a new p_irs', v_irs' and provides me with a forged p_irs'
+
+=== Propagate safely public keys
+  - no public key shallt ever travel the network unsigned
+  - CA (Certificate Authorities)
+  - [p + digsig(p, CA)] = .cer
+  - unsigned=self-signed certificate = no CA has signed that pub key
+
+=== https:// = SSL/TLS
+  - to open https: you have to get a .cer(pub key signed by a CA) issued for your host/domain by a CA. csr => infra team => .cer + private key
+    - keep private key secret⚠️ in your cacerts
+    - send your .cer to any party which recongizes its' signer CA
+    ± add in your caller's cacerts the CA .cer as trusted
+    - all .cer expire -> how to renew them?
+  - all network traffic is sym encrypted with a session key established via the server's .cer = SSL handshake
+  - to connect to you, the client jvm/browser must trust your .cer or your its' issuer CA  
+
+=== 2TLS, two-way ssl, client-cert
+
+=== Security by Obscurity = ❌💩💩💩💩
+  = Let's assume the hackers don't know our code base 
+  - Because of the S-bomb and library vulnerabilities mania in the US, they decided to rewrite 15-year-old codebase of Java entirely in C++ without using any library or open source. WTFWTFWTFWTFWTFWTFWTFWTFWTFWTF; they reinvented wheel intead of updating their wheel
+
+curl 'http://localhost:8080/api/vulnerability/sql-injection?name=a&orderBy=TENANT_ID;DROP%20TABLE%20STUDENT' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-US,en;q=0.9' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Connection: keep-alive' \
+  -b 'Idea-f243e30e=ff84ca99-b8a7-4834-aea1-883fefa0cbf9; grafana_session=6b705ae88b0affd701136f26d1140d78; grafana_session_expiry=1770389869; JSESSIONID=03ED42AAA54C0C587A401734D98F0EFA' \
+  -H 'Pragma: no-cache' \
+  -H 'Referer: http://localhost:8080/vulnerability/sql-injection.html' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Not:A-Brand";v="99", "Google Chrome";v="145", "Chromium";v="145"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"'
