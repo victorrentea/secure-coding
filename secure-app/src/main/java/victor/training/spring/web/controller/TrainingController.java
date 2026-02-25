@@ -33,16 +33,23 @@ public class TrainingController {
 
   @PostMapping("search")
   public List<TrainingDto> search(@RequestBody TrainingSearchCriteria criteria) {
-    return trainingService.search(criteria);
+    List<TrainingDto> results = trainingService.search(criteria);
+//    for (TrainingDto dto : results) {
+//      dto.description = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS).sanitize(dto.description);
+//    }
+    return results;
   }
 
   @GetMapping("{id}")
   public TrainingDto get(@PathVariable long id) {
-    return trainingService.getTrainingById(id);
+    TrainingDto dto = trainingService.getTrainingById(id);
+//    dto.description = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS).sanitize(dto.description);
+    return dto;
   }
 
   @PostMapping
   public void create(@RequestBody @Valid TrainingDto dto) {
+//    dto.description = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS).sanitize(dto.description);
     trainingService.createTraining(dto);
   }
 
@@ -50,6 +57,8 @@ public class TrainingController {
   public void update(@PathVariable Long trainingId, @RequestBody @Valid TrainingDto dto) {
     dto.id = trainingId;
     // TODO sanitizeRichText() against XSS + where else?...
+    // allow-list only supported rich text feats
+//    dto.description = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS).sanitize(dto.description);
     trainingService.updateTraining(dto);
   }
 

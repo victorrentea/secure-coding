@@ -1,0 +1,30 @@
+SECURE FILE UPLOAD — LESSONS LEARNED
+======================================
+
+FILE VALIDATION
+- Check magic bytes (Tika), not just the file extension or Content-Type header
+- Whitelist allowed extensions — whitelisting is always stronger than a denylist
+- Run an antivirus scan on uploaded content before processing
+
+PATH TRAVERSAL
+- Never write to disk using the user-supplied filename — it can escape the target directory (e.g. ../root/.bashrc)
+- Whitelist filename chars with a strict regex; blocking only ".." and "/" is weaker
+- Best fix: generate a random filename on disk (upload-<UUID>.dat), store the original name in the DB
+
+SHELL / COMMAND INJECTION
+- Never concatenate user input into Runtime.exec() — attackers inject extra commands (e.g. a & rm -rf /)
+- The random-filename fix above also eliminates this surface
+
+DENIAL OF SERVICE
+- Memory: limit upload size (Tomcat default 2 MB) to prevent 500 concurrent x 2 MB = 1 GB OOM
+- Thread starvation: long processing on HTTP threads exhausts Tomcat's pool (200 threads)
+  => liveness probes time out => Kubernetes kills the pod => fix with async offloading
+- Unbounded queue: ForkJoinPool.commonPool() has no queue limit
+  => write to a temp file first, queue only a lightweight reference (e.g. a file path)
+- Disk exhaustion: clean up temp files after processing and enforce a max-age (e.g. 7 days)
+
+RESILIENCE
+- In-memory async work is lost on crash or redeploy / rolling restart
+- Prefer durable async: publish to Rabbit/Kafka, or use the Inbox Table Pattern
+  (insert a TASK(status=PENDING) row in DB so work survives restarts)
+
