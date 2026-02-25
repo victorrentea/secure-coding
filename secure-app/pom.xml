@@ -89,6 +89,12 @@
             <version>2.7</version>
         </dependency>
         <dependency>
+            <!-- Detect file type by magic bytes -->
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>

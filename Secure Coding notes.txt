@@ -104,18 +104,24 @@ Secure Coding notes.txt
   = Let's assume the hackers don't know our code base 
   - Because of the S-bomb and library vulnerabilities mania in the US, they decided to rewrite 15-year-old codebase of Java entirely in C++ without using any library or open source. WTFWTFWTFWTFWTFWTFWTFWTFWTFWTF; they reinvented wheel intead of updating their wheel
 
-curl 'http://localhost:8080/api/vulnerability/sql-injection?name=a&orderBy=TENANT_ID;DROP%20TABLE%20STUDENT' \
-  -H 'Accept: */*' \
-  -H 'Accept-Language: en-US,en;q=0.9' \
-  -H 'Cache-Control: no-cache' \
-  -H 'Connection: keep-alive' \
-  -b 'Idea-f243e30e=ff84ca99-b8a7-4834-aea1-883fefa0cbf9; grafana_session=6b705ae88b0affd701136f26d1140d78; grafana_session_expiry=1770389869; JSESSIONID=03ED42AAA54C0C587A401734D98F0EFA' \
-  -H 'Pragma: no-cache' \
-  -H 'Referer: http://localhost:8080/vulnerability/sql-injection.html' \
-  -H 'Sec-Fetch-Dest: empty' \
-  -H 'Sec-Fetch-Mode: cors' \
-  -H 'Sec-Fetch-Site: same-origin' \
-  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36' \
-  -H 'sec-ch-ua: "Not:A-Brand";v="99", "Google Chrome";v="145", "Chromium";v="145"' \
-  -H 'sec-ch-ua-mobile: ?0' \
-  -H 'sec-ch-ua-platform: "macOS"'
+
+=== CVE handling
+  - upgrade 👍
+    - if libA -> libX.v1
+    - libX.v1 (vulnerable) => v2 causes 💥Class/MethodNotFoundError in libA ar runtime
+    - libA 🔼, libB->libA🔼 ... SpringBoot version++
+    => testing again, boss🙁
+    => Victor vulnerabilities are the best thing that happened to software crafters because now we have time to refactor everything when we upgrade Spring Boot. we'll test everything, anyway! 
+  - switch to another !worse library🤞
+  - fix (DIY): 
+    > fork and fix
+    > contribute a fix to OSS!
+    > shadowing classes: reimplementing the same class in your src/main to replace the vulnerable🤢🤮
+  - downgrade lib
+  - ignore🤞
+
+=== user files
+  - XXE doctype /passwd
+  - XML bomb expanding to 3 GB RAM OOM
+  - YAML bomb
+  - java de/serialization: save/load state a java instance as byte[] to eg a file/RMI in a Java-specific format
