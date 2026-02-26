@@ -32,11 +32,11 @@ public class ActuatorSecurityConfig {
   @Value("${actuator.security.password}")
   private final String password;
 
-  @Order(1) // less than the MAX_INT (default), thus runs before the main one securing the rest
+  @Order(1) // < MAX_INT (default) => runs before the other security chain securing the other URLs
   @Bean
   public SecurityFilterChain actuatorFilterChain(HttpSecurity http) throws Exception {
-    // this security filter chain only applies to /actuator/**
-    http.securityMatcher(EndpointRequest.toAnyEndpoint()); // === http.securityMatcher("/actuator/**");
+    http.securityMatcher(
+        EndpointRequest.toAnyEndpoint()); // === "/actuator/**";
 
     http.csrf(csrf -> csrf.disable());
 
