@@ -11,19 +11,13 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-import static victor.training.spring.security.keycloak.TokenRolesToLocalRoles.RoleLevel.CLIENT_LEVEL;
+import static victor.training.spring.security.keycloak.ExtractRolesFromToken.RoleLevel.APPLICATION_LEVEL;
 
 @Slf4j
 @Profile("keycloak-fe")
@@ -53,15 +47,12 @@ class KeyCloakFESecurityConfig {
   }
 
   @Bean
-  public GrantedAuthoritiesMapper extractAuthoritiesFromToken() {
-    return new TokenRolesToLocalRoles(CLIENT_LEVEL, false);
+  public ExtractRolesFromToken extractAuthoritiesFromToken() {
+    return new ExtractRolesFromToken(APPLICATION_LEVEL, false);
   }
 
-  @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
-  private String issuerUri;
-
   @Bean
-  public JwtDecoder jwtDecoder() {
+  public JwtDecoder jwtDecoder(@Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}") String issuerUri) {
     return NimbusJwtDecoder.withIssuerLocation(issuerUri).build();
   }
 
@@ -73,22 +64,7 @@ class KeyCloakFESecurityConfig {
     converter.setPrincipalClaimName("preferred_username");
 
     // 🎭 Extract roles from nested path: resource_access.spring-app.roles
-    converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-      Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
-      if (resourceAccess == null || !resourceAccess.containsKey("spring-app")) {
-        return List.of();
-      }
-
-      Map<String, Object> springApp = (Map<String, Object>) resourceAccess.get("spring-app");
-      if (springApp == null || !springApp.containsKey("roles")) {
-        return List.of();
-      }
-
-      List<String> roles = (List<String>) springApp.get("roles");
-      return roles.stream()
-          .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-          .collect(Collectors.toList());
-    });
+    converter.setJwtGrantedAuthoritiesConverter(extractAuthoritiesFromToken()::extractAuthorities);
 
     return converter;
   }
