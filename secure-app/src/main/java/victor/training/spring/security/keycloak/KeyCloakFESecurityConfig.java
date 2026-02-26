@@ -21,6 +21,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -39,6 +40,7 @@ import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
 
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import static victor.training.spring.security.keycloak.TokenRolesToLocalRoles.RoleLevel.CLIENT_LEVEL;
 
 @Slf4j
@@ -66,13 +68,11 @@ class KeyCloakFESecurityConfig {
             request -> request.getRequestURI().startsWith("/api/")
         )
     );
+    // resource server: only consumer AcessTokens
     http.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+    // stateless api (don't create sessions)
+    http.sessionManagement(config -> config.sessionCreationPolicy(STATELESS));
     return http.build();
-  }
-
-  @Bean
-  protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
-    return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
   }
 
   @Bean
