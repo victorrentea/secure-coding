@@ -22,16 +22,10 @@ public class UserController {
     log.info("Get current user");
     CurrentUserDto dto = new CurrentUserDto();
 //    dto.username = "<todo-username>"; // TODO
-    dto.username= SecurityContextHolder.getContext().getAuthentication().getName();
 //    dto.authorities = List.of(); // TODO
-    dto.authorities = SecurityContextHolder.getContext().getAuthentication()
-        .getAuthorities()
-        .stream()
-        .map(Object::toString)
-        .toList();
-    dto.managedTeacherIds = userRepo.findByUsername(dto.username).stream()
-        .flatMap(user -> user.getManagedTeacherIds().stream())
-        .toList();
+//    dto.managedTeacherIds = userRepo.findByUsername(dto.username).stream()
+//        .flatMap(user -> user.getManagedTeacherIds().stream())
+//        .toList();
     return dto;
   }
 }
