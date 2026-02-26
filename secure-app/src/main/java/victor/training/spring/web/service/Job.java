@@ -19,8 +19,9 @@ public class Job implements CommandLineRunner {
   private final TrainingService trainingService;
 
 //  @EventListener(ApplicationStartedEvent.class)
-//  @KafkaListener/Rabbit/PubSub message listener // ⭐️⭐️⭐️
   @Scheduled(fixedRate = 2000)
+//  @KafkaListener/Rabbit/PubSub message listener // ⭐️⭐️⭐️
+  //@RunWithPriviledges({"ROLE_DELETE_TRAINING","ROLE_CREATE_TRAINING"}) // actions  it can do
   public void poll() {
 //    trainingService.deleteById(0l);
     withExtraRoles(List.of("ROLE_ADMIN"),
