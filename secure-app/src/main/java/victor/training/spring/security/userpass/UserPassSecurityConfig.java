@@ -83,7 +83,7 @@ public class UserPassSecurityConfig {
     log.info("User '{}' has roles {}", user.getUsername(), user.getAuthorities());
     var expendedRoles = user.getAuthorities().stream()
         .map(authority -> authority.getAuthority().substring("ROLE_".length()))
-        .flatMap(roleName -> UserRole.expandToSubRoles(List.of(roleName)).stream())
+        .flatMap(roleName -> UserRole.expandToSubRoles(List.of(roleName)).stream().map(a->"ROLE_"+a))
         .map(SimpleGrantedAuthority::new)
         .toList();
     return User.withUserDetails(user)
