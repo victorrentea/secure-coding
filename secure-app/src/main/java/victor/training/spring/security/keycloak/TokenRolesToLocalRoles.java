@@ -6,6 +6,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.core.AbstractOAuth2Token;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimAccessor;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import victor.training.spring.web.entity.UserRole;
@@ -46,7 +48,7 @@ public class TokenRolesToLocalRoles implements GrantedAuthoritiesMapper {
 
     OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) firstAuthority;
 
-    OidcIdToken idToken = oidcUserAuthority.getIdToken();
+    IdTokenClaimAccessor idToken = oidcUserAuthority.getIdToken();
 
     List<String> tokenRoles = switch (roleLevel) {
       case REALM_LEVEL -> getRealmGlobalRoles(idToken);
@@ -66,7 +68,7 @@ public class TokenRolesToLocalRoles implements GrantedAuthoritiesMapper {
         .collect(toUnmodifiableSet());
   }
 
-  private List<String> getRealmGlobalRoles(OidcIdToken idToken) {
+  private List<String> getRealmGlobalRoles(IdTokenClaimAccessor idToken) {
     Map<String, List<String>> realmAccess = idToken.getClaim("realm_access");
     if (realmAccess == null) {
       throw new BadCredentialsException("User is not authorized - No realm_access claim in OIDC Token");
@@ -78,7 +80,7 @@ public class TokenRolesToLocalRoles implements GrantedAuthoritiesMapper {
     return roles;
   }
 
-  private List<String> getClientSpecificRoles(OidcIdToken idToken) {
+  private List<String> getClientSpecificRoles(IdTokenClaimAccessor idToken) {
     Map<String, Map<String, List<String>>> resourceAccess = idToken.getClaim("resource_access");
     if (resourceAccess == null) {
       throw new BadCredentialsException("User is not authorized on this application - No resource_access claim in OIDC Token");
