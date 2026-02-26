@@ -23,6 +23,7 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import victor.training.spring.web.entity.UserRole;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.security.web.csrf.CookieCsrfTokenRepository.withHttpOnlyFalse;
@@ -42,31 +43,31 @@ public class UserPassSecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable()); // OK if I only expose REST APIs
 
-//    http.csrf(csrf -> csrf //In case I take <form> post (eg JSP)
+//    http.csrf(csrf -> csrf // in case I take <form> post (eg JSP) + Cookie session
 //        .csrfTokenRepository(withHttpOnlyFalse())
 //        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()));
 
-    // adds a http filter that responds to Bro CORS preflight
-    http.cors(Customizer.withDefaults()); // only if .js files come from a CDN (by default CORS requests get blocked)
+    // adds a filter that responds to Browser's CORS preflight http request -- by default any CORS request is rejected
+    // needed if .js files are loaded from another domain/port: locan NodeJS, cdn.example.com
+    http.cors(Customizer.withDefaults());
 
     http.authorizeHttpRequests(authz -> authz
-        //❌EVITA: .requestMatchers(HttpMethod.DELETE, "/api/trainings/*").hasRole("ADMIN")
+        // .requestMatchers(HttpMethod.DELETE, "/api/trainings/*").hasRole("ADMIN") // ❌ AVOID: out-of-sync risk
         .anyRequest().authenticated()
     );
 
-    http.formLogin(Customizer.withDefaults()) // display a login page
-        .userDetailsService(userDetailsService()); // distinguish vs Actuator user/pass
+    http.formLogin(Customizer.withDefaults()) // display a login page for users
+        .userDetailsService(userDetailsService());
 
     http.httpBasic(Customizer.withDefaults()) // also accept Authorization: Basic ... request header
-        .userDetailsService(userDetailsService()); // distinguish vs Actuator user/pass
+        .userDetailsService(userDetailsService());
 
     return http.build();
   }
 
-  // *** Dummy users with plain text passwords - NEVER USE IN PRODUCTION
   @Bean
   public UserDetailsService userDetailsService() {
-    UserDetails user = User.withDefaultPasswordEncoder()
+    UserDetails user = User.withDefaultPasswordEncoder() // ☢️ never use in production
         .username("user").password("user").roles("USER").build();
     UserDetails admin = User.withDefaultPasswordEncoder()
         .username("admin").password("admin").roles("ADMIN").build();
@@ -83,8 +84,11 @@ public class UserPassSecurityConfig {
         .flatMap(roleName -> UserRole.expandToSubRoles(List.of(roleName)).stream().map(a->"ROLE_"+a))
         .map(SimpleGrantedAuthority::new)
         .toList();
+    var allRoles = new ArrayList<GrantedAuthority>(user.getAuthorities());
+    allRoles.addAll(expendedRoles);
+    log.info("Expanded to sub-roles: {}", allRoles);
     return User.withUserDetails(user)
-        .authorities(expendedRoles)
+        .authorities(allRoles)
         .build();
   }
 
