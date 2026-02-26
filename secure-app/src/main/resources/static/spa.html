@@ -1,18 +1,22 @@
 <html>
 
 <head>
-    <link href="toastr.min.css" rel="stylesheet"/>
+    <meta charset="UTF-8"/>
     <script type="text/javascript" src="jquery-1.12.2.min.js"></script>
     <script type="text/javascript" src="toastr.min.js"></script>
-    <!--<script type="text/javascript" src="malicious-lib.js"></script>-->
-
+    <link href="toastr.min.css" rel="stylesheet"/>
 </head>
 
 <body>
 
 <h2>Browser-only Login</h2>
+
 <div id="oauthstatus">click login</div>
-<button onclick="login()">Login from SPA</button>
+<p>
+    /api/user/current:
+    <div id="currentUser"></div>
+</p>
+<!--<button onclick="login()">Login from SPA</button>-->
 
 <script type="text/javascript" src="http://localhost:8180/auth/js/keycloak.js"></script>
 <script>
@@ -26,22 +30,40 @@
             // Client > advanced settings > Proof Key for Code Exchange Code Challenge Method > S256
             pkceMethod: 'S256'
         }).then(function(authenticated) {
-
             if (authenticated) {
-                oauthstatus.innerText = 'authenticated as '+ keycloak.idTokenParsed.preferred_username +
-                    ", with email in IDToken: " + keycloak.idTokenParsed.email;
-                console.log(keycloak.idTokenParsed)
+                oauthstatus.innerText = '✅ Authenticated as user: "'+ keycloak.idTokenParsed.preferred_username +
+                    '", with email in IDToken: ' + keycloak.idTokenParsed.email;
+                console.log("idToken", keycloak.idTokenParsed)
+                console.log("accessToken", keycloak.tokenParsed)
+                console.log("refreshToken", keycloak.refreshTokenParsed)
+                fetchCurrentUser();
             } else {
-                oauthstatus.innerText = 'NOT authenticated';
+                oauthstatus.innerText = '❌ NOT authenticated';
             }
         }).catch(function(e) {
-            oauthstatus.innerText = 'failed to initialize';
+            oauthstatus.innerText = '❌ ERROR (see console)';
             console.log(e);
+        });
+    }
+    login();
+
+    function fetchCurrentUser() {
+        $.ajax("http://localhost:8080/api/user/current", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + keycloak.token
+            },
+            success: function (user) {
+                currentUser.innerText = "✅" + JSON.stringify(user);
+            },
+            error: function (e) {
+                currentUser.innerText = "❌error: " + e;
+                console.log(e);
+            }
         });
     }
 
     function transferAmount() {
-
         $.ajax("http://localhost:8080/api/victim/transfer-rest", {
             method: "POST",
             // xhrFields: { withCredentials: true }, // CORS sending credentials

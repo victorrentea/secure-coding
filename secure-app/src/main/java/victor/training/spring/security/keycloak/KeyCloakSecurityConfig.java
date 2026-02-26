@@ -54,6 +54,11 @@ class KeyCloakSecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(CsrfConfigurer::disable);
     http.authorizeHttpRequests(requests -> requests
+        .requestMatchers("/spa.html").permitAll()
+        .requestMatchers("/keycloak.json").permitAll()
+        .requestMatchers("/jquery-1.12.2.min.js").permitAll()
+        .requestMatchers("/toastr.min.js").permitAll()
+        .requestMatchers("/toastr.min.css").permitAll()
         .anyRequest().authenticated()
     );
     http.oauth2Login(login ->
