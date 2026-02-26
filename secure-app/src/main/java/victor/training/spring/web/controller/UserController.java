@@ -1,5 +1,6 @@
 package victor.training.spring.web.controller;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,6 +12,10 @@ import victor.training.spring.web.controller.dto.CurrentUserDto;
 import victor.training.spring.web.repo.UserRepo;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,10 +41,13 @@ public class UserController {
 @Slf4j
 class Other {
   public void deep() {
+    try {
 //      String username = "TODO";
-    log.info("Somewhere in a repository...");
-    String username = SecurityContextHolder.getContext().getAuthentication().getName();
-    log.info("... created_by=" + username);
+      String username = SecurityContextHolder.getContext().getAuthentication().getName();
+      log.info("Somewhere in a repository... created_by=" + username);
+    } catch (Exception e) {
+      log.error("ERROR", e);
+    }
   }
 }
 //    dto.username = SecurityContextHolder.getContext().getAuthentication().getName();
