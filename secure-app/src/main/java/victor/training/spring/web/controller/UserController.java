@@ -24,19 +24,23 @@ import java.util.concurrent.Executors;
 public class UserController {
   private final UserRepo userRepo;
   private final Other other;
+//  static ThreadLocal<String> tl = new ThreadLocal<>();
 
   @GetMapping("api/user/current")
   public CurrentUserDto getCurrentUser() {
     log.info("Get current user");
     CurrentUserDto dto = new CurrentUserDto();
+
     dto.username = SecurityContextHolder.getContext().getAuthentication().getName();
 //    dto.authorities = List.of(); // TODO
 //    dto.managedTeacherIds = userRepo.findByUsername(dto.username).stream()
 //        .flatMap(user -> user.getManagedTeacherIds().stream())
 //        .toList();
+    CompletableFuture.runAsync(() -> other.deep()); // fire-and-forget a long-running task
     return dto;
   }
 }
+//
 
 @Service
 @Slf4j
