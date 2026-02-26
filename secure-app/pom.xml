@@ -66,7 +66,6 @@
         </dependency>
         -->
 
-
         <!--@Cacheable in central Redis node-->
         <!--<dependency>
             <groupId>org.springframework.boot</groupId>
@@ -83,6 +82,11 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>2.9.2</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

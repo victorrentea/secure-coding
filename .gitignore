@@ -34,5 +34,5 @@ prod/
 capture/
 in/
 /instance.dat
-/serialized-bomb.dat
+/deserialization-bomb.dat
 /pwned
