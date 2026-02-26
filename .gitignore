@@ -36,3 +36,4 @@ in/
 /instance.dat
 /serialized-bomb.dat
 /pwned
+/deserialization-bomb.dat
