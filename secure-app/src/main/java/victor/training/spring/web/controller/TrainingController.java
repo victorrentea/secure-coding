@@ -1,5 +1,6 @@
 package victor.training.spring.web.controller;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.owasp.html.PolicyFactory;
@@ -79,6 +80,10 @@ public class TrainingController {
 //  @PreAuthorize("@permissionService.canDeleteTraining(#trainingId)") // b
 
 //  @PreAuthorize("hasPermission(#trainingId, 'TRAINING', 'WRITE')") // c
+
+//  @RolesAllowed("ADMIN")
+  @Secured("ROLE_ADMIN") // ❤️
+//  @PreAuthorize("hasRole('ADMIN')") // 🤓
   @DeleteMapping("{trainingId}")
   public void delete(@PathVariable Long trainingId) {
     // a)
