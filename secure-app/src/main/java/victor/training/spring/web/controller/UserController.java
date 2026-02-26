@@ -3,6 +3,7 @@ package victor.training.spring.web.controller;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +37,11 @@ public class UserController {
 //    dto.managedTeacherIds = userRepo.findByUsername(dto.username).stream()
 //        .flatMap(user -> user.getManagedTeacherIds().stream())
 //        .toList();
-    CompletableFuture.runAsync(() -> other.deep()); // fire-and-forget a long-running task
+
+    // fire-and-forget a long-running task
+//    Executors.newFixedThreadPool()//NOT ALLOWED IN SPRING❌
+//    CompletableFuture.runAsync(() -> other.deep()); // NEVER!
+    other.deep();
     return dto;
   }
 }
@@ -45,6 +50,7 @@ public class UserController {
 @Service
 @Slf4j
 class Other {
+  @Async // 👑 best way to start a background task in Spring
   public void deep() {
     try {
       String username = SecurityContextHolder.getContext().getAuthentication().getName();
