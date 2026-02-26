@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 //import victor.training.spring.security.config.keycloak.KeyCloakUtils;
+import victor.training.spring.security.keycloak.TokenUtils;
 import victor.training.spring.web.controller.dto.CurrentUserDto;
 import victor.training.spring.web.repo.UserRepo;
 
@@ -34,6 +35,7 @@ public class UserController {
     dto.managedTeacherIds = userRepo.findByUsername(dto.username).stream()
         .flatMap(user -> user.getManagedTeacherIds().stream())
         .toList();
+    TokenUtils.printTheTokens();
     return dto;
   }
 }
@@ -42,8 +44,8 @@ public class UserController {
 @Slf4j
 class Other {
   public void deep() {
-//      String username = "TODO";
     log.info("Somewhere in a repository...");
+//      String username = "TODO";
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
     log.info("... created_by=" + username);
   }

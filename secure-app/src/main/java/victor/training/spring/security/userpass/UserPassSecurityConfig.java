@@ -53,6 +53,7 @@ public class UserPassSecurityConfig {
 
     http.authorizeHttpRequests(authz -> authz
         // .requestMatchers(HttpMethod.DELETE, "/api/trainings/*").hasRole("ADMIN") // ❌ AVOID: out-of-sync risk
+        // TODO /v3/** permitAll
         .anyRequest().authenticated()
     );
 

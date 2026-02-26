@@ -16,7 +16,7 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import static org.springframework.security.web.csrf.CookieCsrfTokenRepository.withHttpOnlyFalse;
 
 @Slf4j
-@Profile("!userpass & !jwt & !keycloak & !apikey & !preauth")
+@Profile("!userpass & !apikey & !preauth & !jwt & !keycloak-be & !keycloak-fe")
 @Configuration
 @EnableWebSecurity
 public class DisabledSecurityConfig {

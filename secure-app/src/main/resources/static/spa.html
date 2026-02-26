@@ -11,7 +11,7 @@
 
 <h2>Browser-only Login</h2>
 
-<div id="oauthstatus">click login</div>
+<div id="oauthstatus">Logging in...</div>
 <p>
     /api/user/current:
     <div id="currentUser"></div>
@@ -22,7 +22,7 @@
 <script>
     let keycloak = null;
 
-    function login() {
+    function keycloakLoginAsSPA() {
         keycloak = new Keycloak();
         oauthstatus.innerText = "Loading...";
         keycloak.init({
@@ -45,8 +45,9 @@
             console.log(e);
         });
     }
-    login();
-
+    keycloakLoginAsSPA();
+</script>
+<script>
     function fetchCurrentUser() {
         $.ajax("http://localhost:8080/api/user/current", {
             method: "GET",

@@ -26,6 +26,41 @@
 <body>
 <h2>Welcome to the SPA (Single Page Application)</h2>
 
+<!-- SPA as the OAuth Client -->
+<!--TODO: permitAll /* -->
+<div id="oauthstatus">Logging in...</div>
+<script type="text/javascript" src="http://localhost:8180/auth/js/keycloak.js"></script>
+<script>
+    let keycloak = null;
+    let accessToken = null;
+
+    function keycloakLoginAsSPA() {
+        keycloak = new Keycloak();
+        oauthstatus.innerText = "Loading...";
+        keycloak.init({
+            onLoad: "login-required",
+            // Client > advanced settings > Proof Key for Code Exchange Code Challenge Method > S256
+            pkceMethod: 'S256'
+        }).then(function(authenticated) {
+            if (authenticated) {
+                accessToken = keycloak.token;
+                oauthstatus.innerText = '✅ Authenticated as user: "'+ keycloak.idTokenParsed.preferred_username +
+                    '", with email in IDToken: ' + keycloak.idTokenParsed.email;
+                console.log("idToken", keycloak.idTokenParsed)
+                console.log("accessToken", keycloak.tokenParsed)
+                console.log("refreshToken", keycloak.refreshTokenParsed)
+                startApp();
+            } else {
+                oauthstatus.innerText = '❌ NOT authenticated';
+            }
+        }).catch(function(e) {
+            oauthstatus.innerText = '❌ ERROR (see console)';
+            console.log(e);
+        });
+    }
+    keycloakLoginAsSPA();
+</script>
+
 <h3>Hello,
     <span id="username"></span>
     <input type="button" value="logout" onclick="window.location='logout'"/>
@@ -104,22 +139,25 @@
 
 <script type="text/javascript">
 
-    // Angular adds it automatically
-    function getCookie(name) {
+    function getCookieByName(name) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
     // 1️⃣ CSRF Token is sent by server to browser via cookie in response
-    let xsrfToken = getCookie("XSRF-TOKEN");
+    let xsrfToken = getCookieByName("XSRF-TOKEN");
 
     async function fetchJson(url, options) {
+        const headers = Object.assign({
+            "X-XSRF-TOKEN": xsrfToken
+        }, (options && options.headers) ? options.headers : {});
+        if (accessToken) {
+            headers["Authorization"] = "Bearer " + accessToken;
+        }
         const mergedOptions = Object.assign({
             credentials: "include",
-            headers: {
-                "X-XSRF-TOKEN": xsrfToken
-            }
+            headers: headers
         }, options || {});
         try {
             const response = await fetch(url, mergedOptions);
@@ -141,7 +179,7 @@
     function getContextPath() {
         // if (document.cookie.includes("api.path"))
         const sameOrigin = window.location.pathname.substring(0, window.location.pathname.indexOf("/", 2));
-        const apiPath = getCookie("APIPATH");
+        const apiPath = getCookieByName("APIPATH");
         if (apiPath) {
             console.log("Using API path: " + apiPath);
             // return "http://api:8080"; // to test CORS  using a local NodeJS instance/"cdn" app
@@ -215,14 +253,22 @@
     }
 
     let currentUser = {};
-    fetchJson(restEndpoint + "/user/current", {
-        method: "GET"
-    }).then(function (user) {
-        currentUser = user;
-        $("#username").text(user.username);
-        $("#currentUserJson").text(JSON.stringify(user));
-        refreshTrainingsTable();
-    });
+    function startApp() {
+        fetchJson(restEndpoint + "/user/current", {
+            method: "GET"
+        }).then(function (user) {
+            currentUser = user;
+            $("#username").text(user.username);
+            $("#currentUserJson").text(JSON.stringify(user));
+            refreshTrainingsTable();
+        });
+
+        populateTeacherSelect($("#editTeacher"));
+        populateTeacherSelect($("#searchTeacher"));
+        $("#searchTeacher").append("<option></option>")
+
+        populateLanguageSelect($("#editLanguage"));
+    }
 
     function populateTeacherSelect($teacherSelect) {
         $teacherSelect.html("");
@@ -235,11 +281,6 @@
         });
     }
 
-    populateTeacherSelect($("#editTeacher"));
-    populateTeacherSelect($("#searchTeacher"));
-    $("#searchTeacher").append("<option></option>")
-
-
     function populateLanguageSelect($select) {
         $select.html("");
         fetchJson(restEndpoint + "/languages", {
@@ -250,9 +291,6 @@
             });
         });
     }
-
-    populateLanguageSelect($("#editLanguage"));
-
 
     function deleteTraining(id) {
         fetchJson(restEndpoint + "/trainings/" + id, {

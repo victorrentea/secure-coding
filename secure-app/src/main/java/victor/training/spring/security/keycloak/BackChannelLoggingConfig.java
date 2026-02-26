@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.core.http.converter.OAuth2AccessToken
 import org.springframework.web.client.RestClient;
 
 @Configuration
-@Profile("keycloak")
+@Profile("keycloak-be")
 public class BackChannelLoggingConfig {
 	@Bean
 	public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> authorizationCodeAccessTokenResponseClient() {
@@ -51,7 +51,7 @@ public class BackChannelLoggingConfig {
 	@Bean
 	public RestClient backChannelRestClient() {
     return RestClient.builder()
-        .requestFactory(new HttpComponentsClientHttpRequestFactory()) // +added
+        .requestFactory(new HttpComponentsClientHttpRequestFactory()) // +added to allow logging
         // = below, copied from org.springframework.security.oauth2.client.endpoint.AbstractRestClientOAuth2AccessTokenResponseClient.restClient
         .messageConverters((messageConverters) -> {
           messageConverters.clear();
