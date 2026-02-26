@@ -76,14 +76,13 @@ public class TrainingController {
 
 // fine-grained role
 //  @Secured("ROLE_TRAINING_DELETE")
-
 //  @PreAuthorize("@permissionService.canDeleteTraining(#trainingId)") // b
-
 //  @PreAuthorize("hasPermission(#trainingId, 'TRAINING', 'WRITE')") // c
-
 //  @RolesAllowed("ADMIN")
-//  @Secured("ROLE_ADMIN") // ❤️
 //  @PreAuthorize("hasRole('ADMIN')") // 🤓
+  // Also, the POWER role should be granted permission to delete training.
+  // CR:
+  @Secured({"ROLE_ADMIN","ROLE_POWER"}) // ❤️
   @DeleteMapping("{trainingId}")
   public void delete(@PathVariable Long trainingId) {
     // a)
