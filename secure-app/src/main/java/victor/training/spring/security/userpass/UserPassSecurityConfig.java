@@ -47,7 +47,7 @@ public class UserPassSecurityConfig {
 //        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()));
 
     // adds a http filter that responds to Bro CORS preflight
-//    http.cors(Customizer.withDefaults()); // only if .js files come from a CDN (by default CORS requests get blocked)
+    http.cors(Customizer.withDefaults()); // only if .js files come from a CDN (by default CORS requests get blocked)
 
     http.authorizeHttpRequests(authz -> authz
         //❌EVITA:

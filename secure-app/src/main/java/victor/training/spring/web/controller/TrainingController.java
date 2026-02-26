@@ -17,6 +17,7 @@ import victor.training.spring.web.repo.TrainingRepo;
 import victor.training.spring.web.repo.UserRepo;
 import victor.training.spring.web.service.TrainingService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -39,6 +40,18 @@ public class TrainingController {
 //      dto.description = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS).sanitize(dto.description);
 //    }
     return results;
+  }
+
+  private static final ThreadLocal<List<String>> transactions =
+      ThreadLocal.withInitial(ArrayList::new);
+  @GetMapping("transactions")
+  public List<String> method() {
+    transactions.get().add("One more");
+    try {
+      return transactions.get();
+    } finally {
+      transactions.remove();// must have! ⭐️⭐️⭐️
+    }
   }
 
   @GetMapping("{id}")
