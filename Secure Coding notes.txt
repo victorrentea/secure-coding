@@ -243,6 +243,9 @@ Secure Coding notes.txt
   - from a LDAP call
   - JWT bearer
 
+=== Data Jurisdictions / ACLs
+  - You have 1 million customers in your database. An employee can only see the customers registered for their own bank branch. 
+
 === Authz = what you can do
   - permitall
   - url-based

@@ -86,13 +86,12 @@ public class TrainingController {
   @Secured("ROLE_TRAINING_DELETE") // ❌
   @DeleteMapping("{trainingId}")
   public void delete(@PathVariable Long trainingId) {
-    // a)
-//    Training training = trainingRepo.findById(trainingId).orElseThrow();
-//    String username = SecurityContextHolder.getContext().getAuthentication().getName();
-//    User user = userRepo.findByUsername(username).orElseThrow();
-//    if (!user.getManagedTeacherIds().contains(training.getTeacher().getId())) {
-//      throw new SecurityException("You cannot delete training because you are not a manager for this teacher " + training.getTeacher().getName());
-//    }
+    //Change: you can only delete a training iff
+    User user = userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow();
+    Training training = trainingRepo.findById(trainingId).orElseThrow();
+    if (!user.getManagedTeacherIds().contains(training.getTeacher().getId())) {
+        throw new RuntimeException("You don't have permission to delete this training");
+    }
 
     trainingService.deleteById(trainingId);
   }

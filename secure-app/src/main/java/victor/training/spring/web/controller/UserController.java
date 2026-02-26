@@ -36,9 +36,9 @@ public class UserController {
     dto.authorities = authentication.getAuthorities().stream()
         .map(Object::toString)
         .toList();
-//    dto.managedTeacherIds = userRepo.findByUsername(dto.username).stream()
-//        .flatMap(user -> user.getManagedTeacherIds().stream())
-//        .toList();
+    dto.managedTeacherIds = userRepo.findByUsername(dto.username).stream()
+        .flatMap(user -> user.getManagedTeacherIds().stream())
+        .toList();
 
     // fire-and-forget a long-running task
 //    Executors.newFixedThreadPool()//NOT ALLOWED IN SPRING❌
