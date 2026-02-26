@@ -42,8 +42,6 @@ public class TrainingService {
         Training training = trainingRepo.findById(id).orElseThrow();
         TrainingDto dto = new TrainingDto(training);
         dto.teacherBio = retrieveTeacherBio(dto.teacherId);
-        String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
-//        training.startEdit(currentUser); // PESSIMISTIC LOCKING
         return dto;
     }
 
@@ -80,18 +78,9 @@ public class TrainingService {
                 .setTeacher(new Teacher(dto.teacherId));
 
         if (!dto.startDate.equals(training.getStartDate())) {
-            // TODO check date not in the past
             emailSender.sendScheduleChangedEmail(training.getTeacher(), training.getName(), dto.startDate);
             training.setStartDate(dto.startDate);
         }
-
-        // OPTIMISTIC LOCKING
-        if (!dto.version.equals(training.getVersion())) {
-//            throw new OptimisticLockException("Another user changed the entity in the meantime. Please refresh the page and re-do your changes.");
-            // Alternative: Hibernate would throw this automatically when repo.save(new Entity from Dto) => EntityManager.merge operator
-        }
-        // PESSIMISTIC LOCKING
-        //training.finishEdit(SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     public void deleteById(Long id) {
