@@ -37,25 +37,29 @@ public class InitialData {
         .setStartDate(LocalDate.now().plusDays(10))
         .setDescription("<p>All about <b>Spring</b></p>")
         .setProgrammingLanguage(JAVA)
-        .setTeacher(victor);
+        .setTeacher(victor)
+        .setCreatedBy("admin");
     Training jpa = new Training()
         .setName("JPA")
         .setStartDate(LocalDate.now().plusDays(2))
         .setDescription("<p>The coolest standard in Java EE</p>")
         .setProgrammingLanguage(JAVA)
-        .setTeacher(victor);
+        .setTeacher(victor)
+        .setCreatedBy("admin");
     Training javaBasic = new Training()
         .setName("Java Basic")
         .setStartDate(LocalDate.now().plusDays(20))
         .setDescription("<p>The new way of doing Single Page Applications</p>")
         .setProgrammingLanguage(JAVA)
-        .setTeacher(ionut);
+        .setTeacher(ionut)
+        .setCreatedBy("admin");
     Training patterns = new Training()
         .setName("Design Patterns")
         .setStartDate(LocalDate.now().plusDays(5))
         .setDescription("<p>Design Thinking</p>")
         .setProgrammingLanguage(PHP)
-        .setTeacher(victor);
+        .setTeacher(victor)
+        .setCreatedBy("admin");
 
     trainingRepo.save(spring);
     trainingRepo.save(jpa);

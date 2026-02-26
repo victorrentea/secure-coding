@@ -2,6 +2,7 @@ package victor.training.spring.web.controller.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import victor.training.spring.vulnerability.VisibleForRole;
 import victor.training.spring.web.controller.util.RichTextSanitizer;
 import victor.training.spring.web.entity.ContractType;
 import victor.training.spring.web.entity.ProgrammingLanguage;
@@ -16,6 +17,7 @@ public class TrainingDto {
 	public String name;
 	public ContractType level;
 	public Long teacherId;
+
 	public String teacherBio;
 	public ProgrammingLanguage language;
 	public String teacherName;
@@ -23,8 +25,8 @@ public class TrainingDto {
 	public LocalDate startDate;
   @RichTextSanitizer.RichText
 	public String description;
-	public Long version;
-
+	@VisibleForRole("ROLE_ADMIN")
+	public String createdBy;
 	public TrainingDto() {}
 
 	public TrainingDto(Training training) {
@@ -35,6 +37,6 @@ public class TrainingDto {
 		teacherId = training.getTeacher().getId();
 		language = training.getProgrammingLanguage();
 		teacherName = training.getTeacher().getName();
-		version = training.getVersion();
+		createdBy = training.getCreatedBy();
 	}
 }

