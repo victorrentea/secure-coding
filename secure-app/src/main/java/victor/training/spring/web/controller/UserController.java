@@ -3,6 +3,7 @@ package victor.training.spring.web.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 //import victor.training.spring.security.config.keycloak.KeyCloakUtils;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController
 public class UserController {
   private final UserRepo userRepo;
+  private final Other other;
 
   @GetMapping("api/user/current")
   public CurrentUserDto getCurrentUser() {
@@ -33,6 +35,17 @@ public class UserController {
         .flatMap(user -> user.getManagedTeacherIds().stream())
         .toList();
     return dto;
+  }
+}
+
+@Service
+@Slf4j
+class Other {
+  public void deep() {
+//      String username = "TODO";
+    log.info("Somewhere in a repository...");
+    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    log.info("... created_by=" + username);
   }
 }
 //    dto.username = SecurityContextHolder.getContext().getAuthentication().getName();
