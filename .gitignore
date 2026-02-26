@@ -37,3 +37,4 @@ in/
 /serialized-bomb.dat
 /pwned
 /deserialization-bomb.dat
+/.claude/settings.local.json
