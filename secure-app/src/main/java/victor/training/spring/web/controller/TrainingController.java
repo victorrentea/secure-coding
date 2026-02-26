@@ -83,18 +83,17 @@ public class TrainingController {
   // Also, the POWER role should be granted permission to delete training.
   // CR:
 //  @Secured({"ROLE_ADMIN","ROLE_POWER"}) // ❌
-  @Secured("ROLE_TRAINING_DELETE") // ❌
+//  @Secured("ROLE_TRAINING_DELETE") // ❌
+  @PreAuthorize("hasRole('TRAINING_DELETE') and @permissionService.canDeleteTraining(#trainingId)") // SpEL
   @DeleteMapping("{trainingId}")
   public void delete(@PathVariable Long trainingId) {
     //Change: you can only delete a training iff
-    User user = userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow();
-    Training training = trainingRepo.findById(trainingId).orElseThrow();
-    if (!user.getManagedTeacherIds().contains(training.getTeacher().getId())) {
-        throw new RuntimeException("You don't have permission to delete this training");
-    }
+//    canWrite(trainingId);
 
     trainingService.deleteById(trainingId);
   }
+
+
 
   private static String sanitizeRichText(String description) {
     // allows only <b>,<i>... = "whitelisting"
