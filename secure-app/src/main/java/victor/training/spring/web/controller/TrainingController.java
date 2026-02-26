@@ -70,8 +70,8 @@ public class TrainingController {
   //  b) @permissionService.canDeleteTraining(#trainingId) => see PermissionService
   //  c) hasPermission(..) => see PermissionEvaluatorImpl
 
-  @Secured("ROLE_ADMIN")
-  @PreAuthorize("hasRole('ROLE_POWER')") // equivalent
+//  @Secured("ROLE_ADMIN")
+//  @PreAuthorize("hasRole('ROLE_POWER')") // equivalent
 
 // fine-grained role
 //  @Secured("ROLE_TRAINING_DELETE")
@@ -79,7 +79,6 @@ public class TrainingController {
 //  @PreAuthorize("@permissionService.canDeleteTraining(#trainingId)") // b
 
 //  @PreAuthorize("hasPermission(#trainingId, 'TRAINING', 'WRITE')") // c
-
   @DeleteMapping("{trainingId}")
   public void delete(@PathVariable Long trainingId) {
     // a)
