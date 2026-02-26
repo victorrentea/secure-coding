@@ -24,8 +24,9 @@ public class TrainingDto {
 	@JsonFormat(pattern = "dd-MM-yyyy")
 	public LocalDate startDate;
   @RichTextSanitizer.RichText
-//	@VisibleForRole("ROLE_ADMIN") // TODO fix.
 	public String description;
+	@VisibleForRole("ROLE_ADMIN")
+	public String createdBy;
 	public TrainingDto() {}
 
 	public TrainingDto(Training training) {
@@ -36,5 +37,6 @@ public class TrainingDto {
 		teacherId = training.getTeacher().getId();
 		language = training.getProgrammingLanguage();
 		teacherName = training.getTeacher().getName();
+		createdBy = training.getCreatedBy();
 	}
 }
