@@ -75,8 +75,8 @@ public class UserPassSecurityConfig {
         .username("admin").password("admin").roles("ADMIN").build();
     UserDetails power = User.withDefaultPasswordEncoder()
         .username("power").password("power").roles("POWER").build();
-    return new InMemoryUserDetailsManager(user, admin, power);
-//    return new InMemoryUserDetailsManager(expandRoles(user), expandRoles(admin), expandRoles(power));
+//    return new InMemoryUserDetailsManager(user, admin, power);
+    return new InMemoryUserDetailsManager(expandRoles(user), expandRoles(admin), expandRoles(power));
   }
 
   private UserDetails expandRoles(UserDetails user) {
@@ -86,6 +86,7 @@ public class UserPassSecurityConfig {
         .flatMap(roleName -> UserRole.expandToSubRoles(List.of(roleName)).stream().map(a->"ROLE_"+a))
         .map(SimpleGrantedAuthority::new)
         .toList();
+    log.info("Expanded to sub-roles: " + expendedRoles);
     return User.withUserDetails(user)
         .authorities(expendedRoles)
         .build();
