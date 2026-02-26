@@ -1,43 +1,95 @@
 package victor.training.spring.web;
 
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import victor.training.spring.web.service.TrainingService;
+import org.springframework.transaction.annotation.Transactional;
+import victor.training.spring.web.entity.Teacher;
+import victor.training.spring.web.entity.Training;
+import victor.training.spring.web.entity.User;
+import victor.training.spring.web.repo.TeacherRepo;
+import victor.training.spring.web.repo.TrainingRepo;
+import victor.training.spring.web.repo.UserRepo;
 
-import static org.hamcrest.Matchers.not;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
+import java.util.Set;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.springframework.test.context.ActiveProfiles;
+
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
+@ActiveProfiles("userpass")
 public class AuthorizationTest {
   @Autowired
   private MockMvc mockMvc;
-  @MockBean
-  private TrainingService trainingService;
+  @Autowired
+  private TrainingRepo trainingRepo;
+  @Autowired
+  private TeacherRepo teacherRepo;
+  @Autowired
+  private UserRepo userRepo;
 
-  @WithMockUser(authorities = "training.delete")
-  @Disabled("if needed")
-  @Test
-  public void userCanDelete() throws Exception {
-    mockMvc.perform(delete("/api/trainings/1/delete")).andExpect(status().is2xxSuccessful());
-    verify(trainingService).deleteById(1L);
+  private Long trainingId;
+  private Long teacherId;
+
+  @BeforeEach
+  void setUp() {
+    Teacher teacher = teacherRepo.save(new Teacher("Mr. Test"));
+    teacherId = teacher.getId();
+
+    Training training = new Training();
+    training.setName("Test Training");
+    training.setTeacher(teacher);
+    trainingId = trainingRepo.save(training).getId();
   }
 
-  @WithMockUser(authorities = "..")
+  // ✅ has the role AND manages the teacher => allowed
   @Test
-  public void userCannotDelete() throws Exception {
-    mockMvc.perform(delete("/api/trainings/1/delete")).andExpect(status().is(not(200)));
-    verifyNoInteractions(trainingService);
+  @WithMockUser(username = "manager", roles = "TRAINING_DELETE")
+  void deleteAllowed_whenUserHasRoleAndManagesTeacher() throws Exception {
+    userRepo.save(new User()
+        .setUsername("manager")
+        .setManagedTeacherIds(Set.of(teacherId)));
+
+    mockMvc.perform(delete("/api/trainings/" + trainingId))
+        .andExpect(status().isOk());
   }
 
+  // ❌ has the role but does NOT manage the training's teacher => forbidden
+  @Test
+  @WithMockUser(username = "manager", roles = "TRAINING_DELETE")
+  void deleteForbidden_whenUserHasRoleButDoesNotManageTeacher() throws Exception {
+    userRepo.save(new User()
+        .setUsername("manager")
+        .setManagedTeacherIds(Set.of())); // manages nobody
 
+    mockMvc.perform(delete("/api/trainings/" + trainingId))
+        .andExpect(status().isForbidden());
+  }
+
+  // ❌ manages the teacher but lacks the required role => forbidden
+  @Test
+  @WithMockUser(username = "manager", roles = "USER")
+  void deleteForbidden_whenUserManagesTeacherButLacksRole() throws Exception {
+    userRepo.save(new User()
+        .setUsername("manager")
+        .setManagedTeacherIds(Set.of(teacherId)));
+
+    mockMvc.perform(delete("/api/trainings/" + trainingId))
+        .andExpect(status().isForbidden());
+  }
+
+  // ❌ unauthenticated => 401
+  @Test
+  void deleteUnauthorized_whenNotAuthenticated() throws Exception {
+    mockMvc.perform(delete("/api/trainings/" + trainingId))
+        .andExpect(status().isUnauthorized());
+  }
 }

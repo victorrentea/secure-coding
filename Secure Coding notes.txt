@@ -245,6 +245,11 @@ Secure Coding notes.txt
 
 === Data Jurisdictions / ACLs
   - You have 1 million customers in your database. An employee can only see the customers registered for their own bank branch. 
+  - "You shouldn't even see those customers out of your branch."
+    a) sql += "AND ..." to all queries!!!! OMG😱
+      🤓 Let me create an SQL post processor that, if I see you select from the customer table, I will automatically add a WHERE to your SQL condition to restrict the visibility to only what you are allowed to see. I will get that information from the thread local. 
+    b) separate schema / country
+    c) separate instance / country $$
 
 === Authz = what you can do
   - permitall
@@ -253,10 +258,36 @@ Secure Coding notes.txt
   - propagation of SecurityContext
   - non-http
 
+
+=== CSRF
+  - You open up your online banking website in the first tab of your browser. 
+  - Your bank is not using modern technologies. 
+  - The web page is server-side generated with: Java Server Pain (.jsp), jsf, vaadin, gwt, velocity; no react, angular, vue...
+  - In the second tab of the browser, you open Pirate Bay / annas archive. 
+  - On that website, random people can post comments. 
+  - And that website is vulnerable to XSS injection. You can actually include HTML in their comments. Or just the site wants to hack you? 
+
+  You are imune to CSRF iff any of::
+  - use SPA  (Angular..) not server-side generated HTML. 
+  - Use JWT instead of Cookies for authn, as they are not sent automatically by the browser to the server, but only when you explicitly add them in the header of your fetch/ajax calls.
+  - SameSite=Lax (or Strict if you can) << RESEARCH
+
 === JWT design
+  - what payload
+    a) role: "ADMIN" 😱for what app?
+    b) app: {"trainings":["ADMIN"],+30 apps}
+    c) control-freak: {"trainings":["TRAINING_DELETE"+50 more],x 30 apps}
+      😊 revoke individual tiny features
+      😊 strict visibility in a central place 🤯❤️
+      🙁 coupling: Whenever you add a new button to any application, you have to call those guys. 
+      🙁 size of token header >>>> payload of requests! 1MB
+      ⇒ OAuth scopes allow to request a token of just 1-2 apps
+      ⇒ TRAINING_DELETE->A124💩/ TD
+      ⇒ gzip token
+      ⇒ TRAINING_WRITE instead of _DELETE, _EDIT, _CREATE
+      ⇒ don't bring any roles in token, but have apps call GET /user/{id}/roles/{app} Entitlements app = +1 network call for all endpoints (😱failure, 😱bottleneck, 😱latency)
   - online/offline validation
   - [a]symmetric signed
-  - what payload
   - what expiration
   - JWT exchange 
   - JWE

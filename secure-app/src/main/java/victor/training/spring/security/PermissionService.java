@@ -9,6 +9,8 @@ import victor.training.spring.web.entity.User;
 import victor.training.spring.web.repo.TrainingRepo;
 import victor.training.spring.web.repo.UserRepo;
 
+import java.util.Set;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -20,6 +22,7 @@ public class PermissionService {
     Training training = trainingRepo.findById(trainingId).orElseThrow();
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
     User user = userRepo.findByUsername(username).orElseThrow();
-    return user.getManagedTeacherIds().contains(training.getTeacher().getId());
+    Set<Long> managedTeacherIds = user.getManagedTeacherIds(); // or from JWT token
+    return managedTeacherIds.contains(training.getTeacher().getId());
   }
 }

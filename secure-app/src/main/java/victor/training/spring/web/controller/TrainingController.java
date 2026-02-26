@@ -54,6 +54,7 @@ public class TrainingController {
     trainingService.createTraining(dto);
   }
 
+  @PreAuthorize("hasRole('TRAINING_EDIT') and @permissionService.canDeleteTraining(#trainingId)") // SpEL
   @PutMapping("{trainingId}")
   public void update(@PathVariable Long trainingId, @RequestBody @Valid TrainingDto dto) {
     dto.id = trainingId;

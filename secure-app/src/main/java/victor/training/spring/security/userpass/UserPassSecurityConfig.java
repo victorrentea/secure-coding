@@ -40,7 +40,7 @@ public class UserPassSecurityConfig {
   @Bean
   @Order(2)
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable()); // OK if I only expose REST APIs
+    http.csrf(csrf -> csrf.disable()); // OK iff I only expose REST APIs called from JS or you use JWT not cookies
 
 //    http.csrf(csrf -> csrf //In case I take <form> post (eg JSP)
 //        .csrfTokenRepository(withHttpOnlyFalse())
