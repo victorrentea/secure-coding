@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import victor.training.spring.web.controller.dto.CurrentUserDto;
 import victor.training.spring.web.repo.UserRepo;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -25,10 +26,10 @@ public class UserController {
   private final Other other;
 
   @GetMapping("api/user/current")
-  public CurrentUserDto getCurrentUser() {
+  public CurrentUserDto getCurrentUser(Principal principal) {
     log.info("Get current user");
     CurrentUserDto dto = new CurrentUserDto();
-//    dto.username = "<todo-username>"; // TODO
+    dto.username = principal.getName();
 //    dto.authorities = List.of(); // TODO
 //    dto.managedTeacherIds = userRepo.findByUsername(dto.username).stream()
 //        .flatMap(user -> user.getManagedTeacherIds().stream())
