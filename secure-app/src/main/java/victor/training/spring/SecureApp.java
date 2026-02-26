@@ -20,6 +20,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.core.task.TaskDecorator;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.client.OAuth2ClientHttpRequestInterceptor;
@@ -37,6 +39,7 @@ import static java.lang.System.currentTimeMillis;
 
 @SpringBootApplication
 @EnableCaching
+@EnableAsync
 @Slf4j
 @ConfigurationPropertiesScan
 @EnableFeignClients
@@ -51,8 +54,7 @@ public class SecureApp {
 
   @Bean
   public RestTemplate restTemplate(RestTemplateBuilder builder) {
-    return builder
-        .build();
+    return builder.build();
   }
 
   @Autowired
