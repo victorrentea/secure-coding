@@ -2,8 +2,7 @@ package victor.training.spring.web.controller.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import victor.training.spring.vulnerability.VisibleForRole;
-import victor.training.spring.web.controller.util.RichTextSanitizer;
+import victor.training.spring.security.VisibleForRoleAspect.VisibleForRole;
 import victor.training.spring.web.entity.ContractType;
 import victor.training.spring.web.entity.ProgrammingLanguage;
 import victor.training.spring.web.entity.Training;
@@ -13,7 +12,7 @@ import java.time.LocalDate;
 
 public class TrainingDto {
 	public Long id;
-	@Size(min = 3, max = 50, message = "{customer.name.length}")
+	@Size(min = 3, max = 50)
 	public String name;
 	public ContractType level;
 	public Long teacherId;
@@ -23,7 +22,7 @@ public class TrainingDto {
 	public String teacherName;
 	@JsonFormat(pattern = "dd-MM-yyyy")
 	public LocalDate startDate;
-  @RichTextSanitizer.RichText
+  //@RichTextSanitizer.RichText
 	public String description;
 	@VisibleForRole("ROLE_ADMIN")
 	public String createdBy;

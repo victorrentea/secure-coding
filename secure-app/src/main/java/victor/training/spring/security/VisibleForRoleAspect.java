@@ -1,4 +1,4 @@
-package victor.training.spring.vulnerability;
+package victor.training.spring.security;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -11,6 +11,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -24,6 +28,15 @@ import java.util.*;
 @Aspect
 @Component
 public class VisibleForRoleAspect {
+  /**
+   * Used by this aspect to hide annotated fields for users without the required role.
+   */
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target({ElementType.FIELD, ElementType.METHOD})
+  public @interface VisibleForRole {
+    String value();
+  }
+
   private static final Logger log = LoggerFactory.getLogger(VisibleForRoleAspect.class);
 
   @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")

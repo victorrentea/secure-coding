@@ -7,13 +7,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
-import victor.training.spring.security.AddFilterDSL;
 
 @Slf4j
 @Profile("jwt")
@@ -30,11 +30,11 @@ public class JwtSecurityConfig {
   private String jwtSecret;
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationConfiguration authenticationConfiguration) throws Exception {
     http.csrf(csrf -> csrf.disable());
     http.authorizeHttpRequests(authz -> authz.anyRequest().authenticated());
     http.authenticationProvider(preAuthenticatedProvider());
-    http.apply(AddFilterDSL.of(authenticationManager -> new JwtFilter(authenticationManager, jwtSecret)));
+    http.addFilter(new JwtFilter(authenticationConfiguration.getAuthenticationManager(), jwtSecret));
     http.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // don't emit Set-Cookie
     return http.build();
   }

@@ -9,7 +9,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import victor.training.spring.web.MyException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -23,14 +22,13 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
-  private final MessageSource messageSource;
 
   @ResponseStatus(INTERNAL_SERVER_ERROR)
   @ExceptionHandler(Exception.class)
   public String onException(Exception exception, HttpServletRequest request) throws Exception {
-//    if (exception instanceof AccessDeniedException) {
-//      throw exception; // allow 403 to go out
-//    }
+    if (exception instanceof AccessDeniedException) {
+      throw exception; // intentional trap to allow 403 exception trace to get out in response (WRONG!)
+    }
     log.error(exception.getMessage(), exception);
     return exception.getMessage(); // don't leak stack traces to clients (Security Best Practice)
   }
@@ -44,16 +42,6 @@ public class GlobalExceptionHandler {
   // Return internationalized error messages in the user language from:
   // - the 'Accept-Language' request header via request.getLocale())
   // - the language in the Access Token via SecurityContextHolder
-
-  @ResponseStatus(INTERNAL_SERVER_ERROR)
-  @ExceptionHandler(MyException.class)
-  public String onMyException(MyException exception, HttpServletRequest request) throws Exception {
-    String errorMessageKey = "error." + exception.getCode().name();
-    Locale clientLocale = request.getLocale(); // or from the Access Token
-    String responseBody = messageSource.getMessage(errorMessageKey, exception.getParams(), exception.getCode().name(), clientLocale);
-    log.error(exception.getMessage() + " : " + responseBody, exception);
-    return responseBody;
-  }
 
   @ResponseStatus(BAD_REQUEST)
   @ExceptionHandler(MethodArgumentNotValidException.class)

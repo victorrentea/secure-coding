@@ -53,22 +53,21 @@ public class TrainingController {
     trainingService.updateTraining(dto);
   }
 
-  // TODO 1 Hide button in UI if not authorized: FE gets roles via /user/current/current to return authorities
-  // TODO 2 ROLE_POWER should also be allowed to delete; then remove it
-  //  => move to fine-grained role: ROLE_TRAINING_DELETE
-  // TODO 3 To delete, current_user.managedTrainingIds must includes training.teacher.id
-  //  a) ad-hoc in this method
-  //  b) @permissionService.canDeleteTraining(#trainingId) => see PermissionService
-  //  c) hasPermission(..) => see PermissionEvaluatorImpl
+  // TODO 1 only ROLE_ADMIN can delete trainings
 
   @Secured("ROLE_ADMIN")
-  @PreAuthorize("hasRole('ROLE_POWER')") // equivalent
+//  @PreAuthorize("hasRole('ROLE_POWER')") // equivalent
 
+  // TODO 2 also ROLE_POWER can delete trainings
+  //  => move to fine-grained role: ROLE_TRAINING_DELETE
 // fine-grained role
 //  @Secured("ROLE_TRAINING_DELETE")
 
+  // TODO 3 To delete it, current user.managedTrainingIds must include training.teacher.id
+  //  a) ad-hoc in this method
+  //  b) @permissionService.canDeleteTraining(#trainingId) => see PermissionService
+  //  c) hasPermission(..) => see PermissionEvaluatorImpl
 //  @PreAuthorize("@permissionService.canDeleteTraining(#trainingId)") // b
-
 //  @PreAuthorize("hasPermission(#trainingId, 'TRAINING', 'WRITE')") // c
 
   @DeleteMapping("{trainingId}")
@@ -85,7 +84,7 @@ public class TrainingController {
   }
 
   private static String sanitizeRichText(String description) {
-    // allows only <b>,<i>... = "whitelisting"
+    // allows only <b>,<i>... = "allow-list"
     // also see RichTextSanitizer
     PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
     return sanitizer.sanitize(description);

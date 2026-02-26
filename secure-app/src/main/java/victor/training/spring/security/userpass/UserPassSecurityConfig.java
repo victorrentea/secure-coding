@@ -59,8 +59,8 @@ public class UserPassSecurityConfig {
     http.formLogin(Customizer.withDefaults()) // display a login page for users
         .userDetailsService(userDetailsService());
 
-    http.httpBasic(Customizer.withDefaults()) // also accept Authorization: Basic ... request header
-        .userDetailsService(userDetailsService());
+//    http.httpBasic(Customizer.withDefaults()) // also accept Authorization: Basic ... request header
+//        .userDetailsService(userDetailsService());
 
     return http.build();
   }

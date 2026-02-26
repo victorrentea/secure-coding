@@ -1,4 +1,4 @@
-package victor.training.spring.web.controller.util;
+package victor.training.spring.security;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Around;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Collection;
 
-//@Aspect
+@Aspect
 @Slf4j
 @Component
 public class RichTextSanitizer {
