@@ -22,6 +22,7 @@ import org.springframework.core.task.TaskDecorator;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.client.OAuth2ClientHttpRequestInterceptor;
@@ -39,6 +40,7 @@ import static java.lang.System.currentTimeMillis;
 
 @SpringBootApplication
 @EnableCaching
+@EnableScheduling
 @EnableAsync
 @Slf4j
 @ConfigurationPropertiesScan
