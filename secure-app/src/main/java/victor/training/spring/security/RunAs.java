@@ -41,11 +41,11 @@ public class RunAs {
 
       SecurityContext elevatedContext = SecurityContextHolder.createEmptyContext();
       elevatedContext.setAuthentication(elevated_auth);
-      SecurityContextHolder.setContext(elevatedContext);
+      SecurityContextHolder.setContext(elevatedContext); // ☢️☢️☢️☢️☢️☢️
 
       return action.get();
     } finally {
-      SecurityContextHolder.setContext(originalContext);
+      SecurityContextHolder.setContext(originalContext); // #musthave !
     }
   }
 }

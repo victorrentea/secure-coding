@@ -84,7 +84,7 @@ public class TrainingService {
         }
     }
 
-    //@Secured("ROLE_ADMIN")
+    @Secured("ROLE_ADMIN")
     public void deleteById(Long id) {
         trainingRepo.deleteById(id);
     }

@@ -44,6 +44,7 @@ public class UserController {
 //    Executors.newFixedThreadPool()//NOT ALLOWED IN SPRING❌
 //    CompletableFuture.runAsync(() -> other.deep()); // NEVER!
     other.deep();
+
     List.of(1,2,3,4)
         .parallelStream()
         .forEach(id -> {

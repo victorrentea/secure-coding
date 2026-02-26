@@ -82,7 +82,7 @@ public class TrainingController {
 //  @PreAuthorize("hasPermission(#trainingId, 'TRAINING', 'WRITE')") // c
 
 //  @RolesAllowed("ADMIN")
-  @Secured("ROLE_ADMIN") // ❤️
+//  @Secured("ROLE_ADMIN") // ❤️
 //  @PreAuthorize("hasRole('ADMIN')") // 🤓
   @DeleteMapping("{trainingId}")
   public void delete(@PathVariable Long trainingId) {
