@@ -23,6 +23,7 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import victor.training.spring.web.entity.UserRole;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.security.web.csrf.CookieCsrfTokenRepository.withHttpOnlyFalse;
@@ -86,9 +87,11 @@ public class UserPassSecurityConfig {
         .flatMap(roleName -> UserRole.expandToSubRoles(List.of(roleName)).stream().map(a->"ROLE_"+a))
         .map(SimpleGrantedAuthority::new)
         .toList();
-    log.info("Expanded to sub-roles: " + expendedRoles);
+    var allRoles = new ArrayList<GrantedAuthority>(user.getAuthorities());
+    allRoles.addAll(expendedRoles);
+    log.info("Expanded to sub-roles: {}", allRoles);
     return User.withUserDetails(user)
-        .authorities(expendedRoles)
+        .authorities(allRoles)
         .build();
   }
 
