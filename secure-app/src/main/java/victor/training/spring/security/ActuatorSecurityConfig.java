@@ -36,13 +36,13 @@ public class ActuatorSecurityConfig {
   @Bean
   public SecurityFilterChain actuatorFilterChain(HttpSecurity http) throws Exception {
     http.securityMatcher(
-        EndpointRequest.toAnyEndpoint()); // === "/actuator/**";
+        EndpointRequest.toAnyEndpoint()); // === "/actuator/**"; catches /a/b/c/...
 
     http.csrf(csrf -> csrf.disable());
 
     http.authorizeHttpRequests(authz -> authz
           // http://localhost:8080/actuator/health is unsecured
-          .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
+          .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll() // k8s /liveness /readiness
 
           // the rest of actuator endpoints:
           .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR") // requires Basic Authorization
@@ -51,7 +51,9 @@ public class ActuatorSecurityConfig {
 
     http.httpBasic(Customizer.withDefaults()).userDetailsService(actuatorUserDetailsService());
 
-    http.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // don't emit Set-Cookie
+    http.sessionManagement(config ->
+        config.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // don't emit Set-Cookie exp in 30m
+    // useless and wasteful if there's no brow in front of me but a system / curl
     return http.build();
   }
 

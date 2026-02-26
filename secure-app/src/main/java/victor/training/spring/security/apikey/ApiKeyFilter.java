@@ -26,7 +26,8 @@ public class ApiKeyFilter extends AbstractPreAuthenticatedProcessingFilter {
 
   @Override
   protected Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest) {
-    String apiKeyHeader = requireNonNull(httpRequest.getHeader("x-api-key"), "Missing header x-api-key");
+    String apiKeyHeader = requireNonNull(httpRequest.getHeader("x-api-key"),
+        "Missing header x-api-key");
     if (globalKey.equals(apiKeyHeader)) {
       return apiKeyHeader;
     }
