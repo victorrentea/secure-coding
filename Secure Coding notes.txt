@@ -193,3 +193,67 @@ Secure Coding notes.txt
 
   - async handling of a create.X
   Usecase: In an e-shop, someone places an order, but the ID of the order gets generated after a rabbit queue, so you can't give the ID back to the UI. => go for client-generated UUIDs (generate the id before the rabbit)
+
+=== Authn = who you are
+  - we authenticate a "Principal" (human / machine)
+  - Form to human - ☢️❌don't> let pros do it IdP Okta, KeyCloak, 2FA
+  - Basic Auth: / https request header "Authorization: Basic base64(user:pass)"
+    > legacy/ops endpoints
+    curl http://localhost:8080/actuator/beans -u actuator:actuator         
+    curl http://localhost:8080/actuator/beans -H "Authorization: Basic YWN0dWF0b3I6YWN0dWF0b3I="
+  - ApiKey more opaque vs Basic for outside developers/users
+    curl http://localhost:8080/api/trainings -H "x-api-key: strongapikey" -v
+  - X.509 .cer
+  - SAML2 aka WebSSO (single-sign-on per day for a human)
+  - JWT OAuth AccessToken 
+    "Authorization: Bearer <jwt>"
+    JWT = JSON digitally signed by Okta
+  - PreAuthenticated
+    Implementing & configuring correctly parsing JWT  tokens/Basic/.cer is risky do reimplement in Spring/Quarkus/Ktor/py/c#/pearl.
+    a) instead implement a lightweight 'security proxy' (eg in py) Make that security proxy the only process accessible in the operating system, and have the actual application running as another process called only locally by the security proxy within the same operating system.
+    -- sends to your app on. headers 
+    x-user
+    x-user-roles (extracted from JWT token) 
+    b) Istio
+
+=== ThreadLocal 
+  - Once you set such a variable to a value in a thread, later in that same thread you can get the variable out.  = immune to race conditions
+  - uses in BE:
+  a) MDC: %X{key} in logging patterns, after MDC.put("key", 1)
+  b) SecurityContext
+  c) @Transactional/JDBC Connection
+  d) TraceID/OTEL
+
+=== Spring Security
+  - SecurityContextHolder.getContext().getAuthentication() = who is the current user
+  - SecurityContextHolder.getContext().getAuthentication().getAuthorities() = what roles/permissions
+  - ! mind changing the thread
+
+=== Broken Authorization 👑👑
+  hide the button in FE, leave the BE unsecured
+  👍 RULE: When you have to restrict security of your application, start with backend. See the error and then hide the button. 
+
+
+=== coroutines + thread local in a spring app
+  - https://docs.spring.io/spring-framework/reference/languages/kotlin/coroutines.html#coroutines.propagation
+
+
+=== user role(s) comes from:
+  - DB
+  - from a LDAP call
+  - JWT bearer
+
+=== Authz = what you can do
+  - permitall
+  - url-based
+  - annotation
+  - propagation of SecurityContext
+  - non-http
+
+=== JWT design
+  - online/offline validation
+  - [a]symmetric signed
+  - what payload
+  - what expiration
+  - JWT exchange 
+  - JWE
