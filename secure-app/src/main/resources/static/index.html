@@ -114,22 +114,29 @@
     // 1️⃣ CSRF Token is sent by server to browser via cookie in response
     let xsrfToken = getCookie("XSRF-TOKEN");
 
-    $.ajaxSetup({
-        beforeSend: function (request) {
-            // 2️⃣ CRSF Token is sent by browser to server as request header
-            request.setRequestHeader('X-XSRF-TOKEN', xsrfToken);
-        },
-        xhrFields: {withCredentials: true}, // CORS to add BE cookies to all requests
-    });
-
-    $(document).ajaxError(function (event, xhr, settings, thrownError) {
-        console.log("ERROR", event, xhr, settings, thrownError)
-        if (xhr.responseText) {
-            toastr.error(xhr.responseText);
-        } else {
-            toastr.error("ERROR");
+    async function fetchJson(url, options) {
+        const mergedOptions = Object.assign({
+            credentials: "include",
+            headers: {
+                "X-XSRF-TOKEN": xsrfToken
+            }
+        }, options || {});
+        try {
+            const response = await fetch(url, mergedOptions);
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(text || "ERROR");
+            }
+            const contentType = response.headers.get("content-type") || "";
+            if (contentType.includes("application/json")) {
+                return await response.json();
+            }
+            return await response.text();
+        } catch (err) {
+            toastr.error(err && err.message ? err.message : "ERROR");
+            throw err;
         }
-    });
+    }
 
     function getContextPath() {
         // if (document.cookie.includes("api.path"))
@@ -182,50 +189,49 @@
 
 
     function refreshTrainingsTable() {
-        $.ajax(restEndpoint + "/trainings", {
-            method: "GET",
-            success: function (trainings) {
-                fillTable(trainings);
-                toastr.info("Trainings reloaded")
-            }
+        fetchJson(restEndpoint + "/trainings", {
+            method: "GET"
+        }).then(function (trainings) {
+            fillTable(trainings);
+            toastr.info("Trainings reloaded");
         });
     }
 
     function search() {
-        $.ajax(restEndpoint + "/trainings/search", {
+        fetchJson(restEndpoint + "/trainings/search", {
             method: "POST",
-            data: JSON.stringify({
+            headers: {
+                "Content-Type": "application/json",
+                "X-XSRF-TOKEN": xsrfToken
+            },
+            body: JSON.stringify({
                 name: $("#searchName").val(),
                 teacherId: $("#searchTeacher").val()
-            }),
-            contentType: "application/json",
-            success: function (trainings) {
-                fillTable(trainings);
-                toastr.info("Search results displayed")
-            }
+            })
+        }).then(function (trainings) {
+            fillTable(trainings);
+            toastr.info("Search results displayed");
         });
     }
 
     let currentUser = {};
-    $.ajax(restEndpoint + "/user/current", {
-        method: "GET",
-        success: function (user) {
-            currentUser = user;
-            $("#username").text(user.username);
-            $("#currentUserJson").text(JSON.stringify(user));
-            refreshTrainingsTable(); //
-        }
+    fetchJson(restEndpoint + "/user/current", {
+        method: "GET"
+    }).then(function (user) {
+        currentUser = user;
+        $("#username").text(user.username);
+        $("#currentUserJson").text(JSON.stringify(user));
+        refreshTrainingsTable();
     });
 
     function populateTeacherSelect($teacherSelect) {
         $teacherSelect.html("");
-        $.ajax(restEndpoint + "/teachers", {
-            method: "GET",
-            success: function (teachers) {
-                $.each(teachers, function (i, t) {
-                    $teacherSelect.append('<option value="' + t.id + '">' + t.name + '</option>');
-                });
-            }
+        fetchJson(restEndpoint + "/teachers", {
+            method: "GET"
+        }).then(function (teachers) {
+            $.each(teachers, function (i, t) {
+                $teacherSelect.append('<option value="' + t.id + '">' + t.name + '</option>');
+            });
         });
     }
 
@@ -236,13 +242,12 @@
 
     function populateLanguageSelect($select) {
         $select.html("");
-        $.ajax(restEndpoint + "/languages", {
-            method: "GET",
-            success: function (languages) {
-                $.each(languages, function (i, t) {
-                    $select.append('<option value="' + t + '">' + t + '</option>');
-                });
-            }
+        fetchJson(restEndpoint + "/languages", {
+            method: "GET"
+        }).then(function (languages) {
+            $.each(languages, function (i, t) {
+                $select.append('<option value="' + t + '">' + t + '</option>');
+            });
         });
     }
 
@@ -250,41 +255,43 @@
 
 
     function deleteTraining(id) {
-        $.ajax(restEndpoint + "/trainings/" + id, {
-            method: "DELETE",
-            success: function () {
-                toastr.success("Training deleted");
-                refreshTrainingsTable();
-            }
+        fetchJson(restEndpoint + "/trainings/" + id, {
+            method: "DELETE"
+        }).then(function () {
+            toastr.success("Training deleted");
+            refreshTrainingsTable();
         });
     }
 
     //------------- TRAINING: UPDATE SCREEN --------------------
     let versionUnderEdit;
     function openEditTraining(trainingId) {
-        $.ajax(restEndpoint + "/trainings/" + trainingId, {
-            method: "GET",
-            success: function (data) {
-                $("#editTrainingId").val(data.id);
-                $("#editName").val(data.name);
-                $("#editLanguage").val(data.language);
-                // $("#editDescription").val(data.description);
-                editDescriptionQuill.root.innerHTML = data.description;
-                $("#editStartDate").val(data.startDate);
-                $("#editTeacher").val(data.teacherId);
-                $("#editCreatedBy").val(data.createdBy);
-                $("#teacherBio").text(data.teacherBio);
-                versionUnderEdit = data.version;
-                $('#trainingMain').hide();
-                $('#trainingEditDiv').show();
-            }
+        fetchJson(restEndpoint + "/trainings/" + trainingId, {
+            method: "GET"
+        }).then(function (data) {
+            $("#editTrainingId").val(data.id);
+            $("#editName").val(data.name);
+            $("#editLanguage").val(data.language);
+            // $("#editDescription").val(data.description);
+            editDescriptionQuill.root.innerHTML = data.description;
+            $("#editStartDate").val(data.startDate);
+            $("#editTeacher").val(data.teacherId);
+            $("#editCreatedBy").val(data.createdBy);
+            $("#teacherBio").text(data.teacherBio);
+            versionUnderEdit = data.version;
+            $('#trainingMain').hide();
+            $('#trainingEditDiv').show();
         });
     }
 
     function updateTraining() {
-        $.ajax(restEndpoint + "/trainings/" + $("#editTrainingId").val(), {
+        fetchJson(restEndpoint + "/trainings/" + $("#editTrainingId").val(), {
             method: "PUT",
-            data: JSON.stringify({
+            headers: {
+                "Content-Type": "application/json",
+                "X-XSRF-TOKEN": xsrfToken
+            },
+            body: JSON.stringify({
                 name: $("#editName").val(),
                 language: $("#editLanguage").val(),
                 startDate: $("#editStartDate").val(),
@@ -292,14 +299,12 @@
                 version: versionUnderEdit,
                 description: editDescriptionQuill.root.innerHTML
                 // description: $("#editDescription").val()
-            }),
-            contentType: "application/json",
-            success: function (data) {
-                toastr.success("Training Updated");
-                $('#trainingMain').show();
-                $('#trainingEditDiv').hide();
-                refreshTrainingsTable();
-            }
+            })
+        }).then(function () {
+            toastr.success("Training Updated");
+            $('#trainingMain').show();
+            $('#trainingEditDiv').hide();
+            refreshTrainingsTable();
         });
     }
 
@@ -317,23 +322,25 @@
     }
 
     function createTraining() {
-        $.ajax(restEndpoint + "/trainings", {
-            data: JSON.stringify({
+        fetchJson(restEndpoint + "/trainings", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-XSRF-TOKEN": xsrfToken
+            },
+            body: JSON.stringify({
                 name: $("#newName").val(),
                 // description: $("#newDescription").val(),
                 description: newDescriptionQuill.root.innerHTML,
                 language: $("#newLanguage").val(),
                 startDate: $("#newStartDate").val(),
                 teacherId: $("#newTeacher").val()
-            }),
-            method: "POST",
-            contentType: "application/json",
-            success: function (data) {
-                toastr.success("Training created");
-                $('#trainingMain').show();
-                $('#trainingNewDiv').hide();
-                refreshTrainingsTable();
-            }
+            })
+        }).then(function () {
+            toastr.success("Training created");
+            $('#trainingMain').show();
+            $('#trainingNewDiv').hide();
+            refreshTrainingsTable();
         });
     }
 
@@ -358,3 +365,4 @@
 </script>
 </body>
 </html>
+

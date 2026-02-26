@@ -1,6 +1,5 @@
 package victor.training.spring.web.entity;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import lombok.SneakyThrows;
@@ -8,8 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import victor.training.spring.crypto.SymmetricEncryption;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
 import java.security.Key;
 import java.util.Base64;
 
@@ -18,7 +15,7 @@ import java.util.Base64;
 public class TeacherNameEncrypter implements AttributeConverter<String, String> {
   private Key key;
 
-  @Value("${symmetric.key.base64}")
+  @Value("${teacher.name.db.symmetric.key.base64}")
   public void setKey(String keyBase64) {
     log.info("Using symmetric key: {}", keyBase64);
     key = SymmetricEncryption.parseSymmetricKeyFromBase64(keyBase64);
