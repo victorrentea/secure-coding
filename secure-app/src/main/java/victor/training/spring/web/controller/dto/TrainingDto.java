@@ -26,8 +26,6 @@ public class TrainingDto {
   @RichTextSanitizer.RichText
 //	@VisibleForRole("ROLE_ADMIN") // TODO fix.
 	public String description;
-	public Long version;
-
 	public TrainingDto() {}
 
 	public TrainingDto(Training training) {
@@ -38,6 +36,5 @@ public class TrainingDto {
 		teacherId = training.getTeacher().getId();
 		language = training.getProgrammingLanguage();
 		teacherName = training.getTeacher().getName();
-		version = training.getVersion();
 	}
 }

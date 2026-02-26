@@ -28,10 +28,6 @@ public class Training {
 	@Enumerated(EnumType.STRING)
 	private ProgrammingLanguage programmingLanguage;
 
-	// optimistic locking
-	@Version
-	private Long version;
-
 	// pessimistic locking (prevent opening the edit screen for the same record at the same time)
 	@Setter(AccessLevel.NONE)
 	private String inEditByUser;
