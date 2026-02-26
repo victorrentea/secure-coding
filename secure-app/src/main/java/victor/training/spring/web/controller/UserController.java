@@ -26,10 +26,10 @@ public class UserController {
   private final Other other;
 
   @GetMapping("api/user/current")
-  public CurrentUserDto getCurrentUser(Principal principal) {
+  public CurrentUserDto getCurrentUser() {
     log.info("Get current user");
     CurrentUserDto dto = new CurrentUserDto();
-    dto.username = principal.getName();
+    dto.username = SecurityContextHolder.getContext().getAuthentication().getName();
 //    dto.authorities = List.of(); // TODO
 //    dto.managedTeacherIds = userRepo.findByUsername(dto.username).stream()
 //        .flatMap(user -> user.getManagedTeacherIds().stream())
@@ -43,7 +43,6 @@ public class UserController {
 class Other {
   public void deep() {
     try {
-//      String username = "TODO";
       String username = SecurityContextHolder.getContext().getAuthentication().getName();
       log.info("Somewhere in a repository... created_by=" + username);
     } catch (Exception e) {
