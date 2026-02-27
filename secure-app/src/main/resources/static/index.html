@@ -37,6 +37,36 @@
     let keycloak = null;
     let accessToken = null;
 
+    /**
+     * Calculate token expiration details
+     * @param {number} expirationTimestamp - Unix timestamp in seconds (from token.exp)
+     * @returns {object} - { localTime: string, deltaMinutes: number, deltaSeconds: number }
+     */
+    function getTokenExpirationInfo(expirationTimestamp) {
+        const accessTokenExp = expirationTimestamp * 1000; // Convert to milliseconds
+        const expirationDate = new Date(accessTokenExp);
+        const nowTime = Date.now();
+        const deltaMs = accessTokenExp - nowTime;
+        const deltaMinutes = Math.floor(deltaMs / 60000);
+        const deltaSeconds = Math.floor((deltaMs % 60000) / 1000);
+
+        return {
+            localTime: expirationDate.toLocaleString(),
+            deltaMinutes: deltaMinutes,
+            deltaSeconds: deltaSeconds
+        };
+    }
+
+    function logTokenDetails() {
+        if (!keycloak || !keycloak.tokenParsed || !keycloak.token) {
+            return;
+        }
+        const tokenExpiration = getTokenExpirationInfo(keycloak.tokenParsed.exp);
+        console.log("🔑 accessToken:",
+            `⏰ Expires: ${tokenExpiration.localTime} (in ${tokenExpiration.deltaMinutes}m ${tokenExpiration.deltaSeconds}s)`,
+            keycloak.tokenParsed);
+    }
+
     function keycloakLoginAsSPA() {
         keycloak = new Keycloak();
         oauthstatus.innerText = "Logging in via OAuth...";
@@ -50,7 +80,9 @@
                 oauthstatus.innerText = '✅ OAuth-ed: "'+ keycloak.idTokenParsed.preferred_username +
                     ', OIDCToken.email: ' + keycloak.idTokenParsed.email;
                 console.log("idToken", keycloak.idTokenParsed)
-                console.log("accessToken", keycloak.tokenParsed)
+
+                logTokenDetails();
+
                 console.log("refreshToken", keycloak.refreshTokenParsed)
                 startApp(); // again after getting token
             } else {
@@ -146,6 +178,21 @@
     let xsrfToken = getCookieByName("XSRF-TOKEN");
 
     async function fetchJson(url, options) {
+        // 🔄 **REFRESH TOKEN BEFORE EACH API CALL** if it will expire in the next 30 seconds
+        if (keycloak && keycloak.isTokenExpired(30)) {
+            try {
+                await keycloak.updateToken(30);
+                accessToken = keycloak.token; // Update the stored token
+                console.log("✅ Token refreshed successfully");
+                logTokenDetails();
+            } catch (err) {
+                console.error("❌ Token refresh failed:", err);
+                toastr.error("Session expired. Please login again.");
+                window.location.href = 'logout'; // Redirect to login
+                return;
+            }
+        }
+
         const headers = Object.assign({
             "X-XSRF-TOKEN": xsrfToken
         }, (options && options.headers) ? options.headers : {});
@@ -160,6 +207,12 @@
             const response = await fetch(url, mergedOptions);
             if (!response.ok) {
                 const text = await response.text();
+                // 🔓 Handle 401 - token might have expired, suggest re-login
+                if (response.status === 401) {
+                    toastr.error("Authentication failed. Please login again.");
+                    window.location.href = 'logout';
+                    return;
+                }
                 throw new Error(text || "ERROR");
             }
             const contentType = response.headers.get("content-type") || "";
