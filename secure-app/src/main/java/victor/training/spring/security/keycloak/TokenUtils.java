@@ -25,6 +25,7 @@ public class TokenUtils {
   public static void printTheTokens(Authentication authentication) {
     Object principal = authentication.getPrincipal();
     if (!(principal instanceof DefaultOidcUser oidcUser)) {
+      log.debug("No OAuth Tokens. Principal=" + principal.getClass());
       return;
     }
 

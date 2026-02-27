@@ -26,17 +26,15 @@ public class TeacherBioClient {
   private final RestTemplate rest;
   private final RestClient restClient;
 
-
-  // TODO cacheable
   public String retrieveBiographyForTeacher(long teacherId) {
-    log.debug("Calling external web endpoint... (takes time)");
+    log.debug("Calling external API... ");
+    TokenUtils.printTheTokens();
 //    String result = dummyCall(teacherId);
 //    String result = callUsingFeignClient(teacherId);
     String result = callUsingRestTemplate(teacherId);
     log.debug("Got result");
     return result;
   }
-
 
   @SneakyThrows
   public String callUsingFeignClient(long teacherId) {
