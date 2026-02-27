@@ -17,7 +17,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-import static victor.training.spring.security.keycloak.ExtractRolesFromToken.RoleLevel.APPLICATION_LEVEL;
 
 @Slf4j
 @Profile("keycloak-fe")
@@ -32,7 +31,7 @@ class KeyCloakFESecurityConfig {
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
     http.csrf(CsrfConfigurer::disable);
     http.authorizeHttpRequests(requests -> requests
         .requestMatchers("/*").permitAll() // allow access to SPA static files: .html, .js ...
@@ -40,15 +39,10 @@ class KeyCloakFESecurityConfig {
     );
     // resource server: only consumer AcessTokens
     http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
-        jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+        jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)));
     // stateless api (don't create sessions)
     http.sessionManagement(config -> config.sessionCreationPolicy(STATELESS));
     return http.build();
-  }
-
-  @Bean
-  public ExtractRolesFromToken extractAuthoritiesFromToken() {
-    return new ExtractRolesFromToken(APPLICATION_LEVEL, false);
   }
 
   @Bean
@@ -57,14 +51,14 @@ class KeyCloakFESecurityConfig {
   }
 
   @Bean
-  public JwtAuthenticationConverter jwtAuthenticationConverter() {
+  public JwtAuthenticationConverter jwtAuthenticationConverter(TokenRoleExtractor tokenRoleExtractor) {
     JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
 
     // 🔑 Set the claim name to extract the principal (username) from
     converter.setPrincipalClaimName("preferred_username");
 
-    // 🎭 Extract roles from nested path: resource_access.spring-app.roles
-    converter.setJwtGrantedAuthoritiesConverter(extractAuthoritiesFromToken()::extractAuthorities);
+    // 🎭 Reuse TokenRoleExtractor to extract roles from token
+    converter.setJwtGrantedAuthoritiesConverter(tokenRoleExtractor::extractAuthorities);
 
     return converter;
   }

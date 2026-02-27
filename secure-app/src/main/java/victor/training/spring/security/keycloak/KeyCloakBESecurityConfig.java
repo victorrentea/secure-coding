@@ -33,8 +33,6 @@ import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
 
-import static victor.training.spring.security.keycloak.ExtractRolesFromToken.RoleLevel.APPLICATION_LEVEL;
-
 @Slf4j
 @Profile("keycloak-be")
 @Configuration
@@ -76,11 +74,6 @@ class KeyCloakBESecurityConfig {
   @Bean
   protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
     return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
-  }
-
-  @Bean
-  public GrantedAuthoritiesMapper extractAuthoritiesFromToken() {
-    return new ExtractRolesFromToken(APPLICATION_LEVEL, false);
   }
 
   private static class LoginFailureHandler implements AuthenticationFailureHandler {

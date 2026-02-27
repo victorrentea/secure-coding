@@ -1,7 +1,9 @@
 package victor.training.spring.security.keycloak;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -9,33 +11,26 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Component;
 import victor.training.spring.web.entity.UserRole;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
 
 @Slf4j
-public class ExtractRolesFromToken implements GrantedAuthoritiesMapper {
-  public enum RoleLevel {
-    /** Global per ecosystem, in OIDCToken.realm_access.roles */
-    REALM_LEVEL,
-    /** Specific to my system, in OIDCToken.resource_access['spring-app'].roles */
-    APPLICATION_LEVEL
-  }
+@Data
+@Component
+@Profile({"keycloak-be", "keycloak-fe"})
+@ConfigurationProperties(prefix = "keycloak.roles")
+public class TokenRoleExtractor implements GrantedAuthoritiesMapper {
 
-  private final boolean expandRoles;
-  private final RoleLevel roleLevel;
-
-  public ExtractRolesFromToken(RoleLevel roleLevel, boolean expandRoles) {
-    this.roleLevel = roleLevel;
-    this.expandRoles = expandRoles;
-  }
-
-  @Value("${spring.application.name}")
   private String applicationName;
+  private boolean expand = false;
+
 
   // ============== OAuth2 Login (OIDC) flow ==============
   @Override
@@ -49,10 +44,9 @@ public class ExtractRolesFromToken implements GrantedAuthoritiesMapper {
 
     ClaimAccessor idToken = oidcUserAuthority.getIdToken();
 
-    List<String> tokenRoles = switch (roleLevel) {
-      case REALM_LEVEL -> getRealmGlobalRoles(idToken);
-      case APPLICATION_LEVEL -> getClientSpecificRoles(idToken);
-    };
+    List<String> tokenRoles = isApplicationLevel()
+        ? getApplicationLevelRoles(idToken)
+        : getRealmLevelRoles(idToken);
 
     return mapRolesToAuthorities(tokenRoles);
   }
@@ -64,18 +58,24 @@ public class ExtractRolesFromToken implements GrantedAuthoritiesMapper {
    */
   @SuppressWarnings("unchecked")
   public Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
-    List<String> tokenRoles = switch (roleLevel) {
-      case REALM_LEVEL -> getRealmGlobalRoles(jwt);
-      case APPLICATION_LEVEL -> getClientSpecificRoles(jwt);
-    };
+    List<String> tokenRoles = isApplicationLevel()
+        ? getApplicationLevelRoles(jwt)
+        : getRealmLevelRoles(jwt);
 
     return (Collection<GrantedAuthority>) mapRolesToAuthorities(tokenRoles);
+  }
+
+  // ============== Level determination ==============
+  private boolean isApplicationLevel() {
+    return Optional.ofNullable(applicationName)
+        .filter(name -> !name.isBlank())
+        .isPresent();
   }
 
   // ============== Common logic ==============
   private Collection<? extends GrantedAuthority> mapRolesToAuthorities(List<String> tokenRoles) {
     List<String> localRoles;
-    if (expandRoles) {
+    if (expand) {
       localRoles = UserRole.expandToSubRoles(tokenRoles);
       log.debug("Expanded roles: {}", tokenRoles);
     } else {
@@ -88,7 +88,7 @@ public class ExtractRolesFromToken implements GrantedAuthoritiesMapper {
   }
 
   // ============== Token claim extraction (works for both OIDC and JWT) ==============
-  private List<String> getRealmGlobalRoles(ClaimAccessor token) {
+  private List<String> getRealmLevelRoles(ClaimAccessor token) {
     Map<String, List<String>> realmAccess = token.getClaim("realm_access");
     if (realmAccess == null) {
       throw new BadCredentialsException("User is not authorized - No realm_access claim in token");
@@ -100,18 +100,18 @@ public class ExtractRolesFromToken implements GrantedAuthoritiesMapper {
     return roles;
   }
 
-  private List<String> getClientSpecificRoles(ClaimAccessor token) {
+  private List<String> getApplicationLevelRoles(ClaimAccessor token) {
     Map<String, Map<String, List<String>>> resourceAccess = token.getClaim("resource_access");
     if (resourceAccess == null) {
       throw new BadCredentialsException("User is not authorized on this application - No resource_access claim in token");
     }
-    Map<String, List<String>> clientAccess = resourceAccess.get(applicationName);
-    if (clientAccess == null) {
+    Map<String, List<String>> applicationAccess = resourceAccess.get(applicationName);
+    if (applicationAccess == null) {
       throw new BadCredentialsException("User is not authorized on this application - No resource_access['%s'] claim in token".formatted(applicationName));
     }
-    if (!clientAccess.containsKey("roles")) {
+    if (!applicationAccess.containsKey("roles")) {
       throw new BadCredentialsException("User is not authorized on this application - No roles in resource_access['%s'] claim in token".formatted(applicationName));
     }
-    return clientAccess.get("roles");
+    return applicationAccess.get("roles");
   }
 }
