@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -24,32 +25,57 @@ public class TokenUtils {
   }
   public static void printTheTokens(Authentication authentication) {
     Object principal = authentication.getPrincipal();
-    if (!(principal instanceof DefaultOidcUser oidcUser)) {
-      log.debug("No OAuth Tokens. Principal=" + principal.getClass());
+    if (principal instanceof DefaultOidcUser oidcUser) {
+      log.info("\n-- OpenID Connect Token: {} ", oidcUser.getUserInfo().getClaims());
+      logAccessToken(oidcUser.getExpiresAt().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+          getCurrentToken().orElse("N/A"),
+          oidcUser.getAttributes());
       return;
     }
 
-    log.info("\n-- OpenID Connect Token: {} ", oidcUser.getUserInfo().getClaims());
-    LocalDateTime expirationTime = oidcUser.getExpiresAt().atZone(ZoneId.systemDefault()).toLocalDateTime();
-    String deltaLeft = expirationTime.isAfter(LocalDateTime.now())?
-      "expires in " + LocalTime.MIN.plusSeconds(LocalDateTime.now().until(expirationTime, ChronoUnit.SECONDS)).toString() :
-      "!EXPIRED!";
-    log.info("User: " + oidcUser);
+    if (principal instanceof Jwt jwt) {
+      LocalDateTime expirationTime = jwt.getExpiresAt() != null
+          ? jwt.getExpiresAt().atZone(ZoneId.systemDefault()).toLocalDateTime()
+          : null;
+      logAccessToken(expirationTime, jwt.getTokenValue(), jwt.getClaims());
+      return;
+    }
+
+    log.debug("No OAuth Tokens. Principal=" + principal.getClass());
+  }
+
+  public static void logAccessToken(LocalDateTime expirationTime, String tokenValue, Map<String, Object> claims) {
+    String deltaLeft = expirationTime != null && expirationTime.isAfter(LocalDateTime.now())
+        ? "expires in " + LocalTime.MIN.plusSeconds(LocalDateTime.now().until(expirationTime, ChronoUnit.SECONDS)).toString()
+        : "!EXPIRED!";
     log.info("\n-- Access Token 👑 ({} at {} local time): {}\n{}",
         deltaLeft,
         expirationTime,
-        getCurrentToken().orElse("N/A"),
-        mapToPrettyJson(oidcUser.getAttributes()));
+        tokenValue,
+        mapToPrettyJson(claims));
   }
 
   public static Optional<String> getCurrentToken() {
-    return Optional.ofNullable(SecurityContextHolder.getContext())
-        .map(SecurityContext::getAuthentication)
-        .map(Authentication::getPrincipal)
-        .filter(OidcUser.class::isInstance)
-        .map(OidcUser.class::cast)
-        .map(OidcUser::getIdToken)
-        .map(OidcIdToken::getTokenValue);
+    SecurityContext context = SecurityContextHolder.getContext();
+    if (context == null) {
+      return Optional.empty();
+    }
+    Authentication authentication = context.getAuthentication();
+    if (authentication == null) {
+      return Optional.empty();
+    }
+    Object principal = authentication.getPrincipal();
+    if (principal instanceof OidcUser oidcUser) {
+      OidcIdToken idToken = oidcUser.getIdToken();
+      if (idToken == null) {
+        return Optional.empty();
+      }
+      return Optional.ofNullable(idToken.getTokenValue());
+    }
+    if (principal instanceof Jwt jwt) {
+      return Optional.of(jwt.getTokenValue());
+    }
+    return Optional.empty();
   }
 
   private static String mapToPrettyJson(Map<String, Object> map) {
