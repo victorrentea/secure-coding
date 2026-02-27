@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import victor.training.spring.web.entity.UserRole;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -74,12 +75,13 @@ public class TokenRoleExtractor implements GrantedAuthoritiesMapper {
 
   // ============== Common logic ==============
   private Collection<? extends GrantedAuthority> mapRolesToAuthorities(List<String> tokenRoles) {
-    List<String> localRoles;
+    List<String> localRoles = new ArrayList<>(tokenRoles);
     if (expand) {
-      localRoles = UserRole.expandToSubRoles(tokenRoles);
-      log.debug("Expanded roles: {}", tokenRoles);
+      List<String> expandedRoles = UserRole.expandToSubRoles(tokenRoles);
+      localRoles.addAll(expandedRoles);
+      log.debug("Original roles: {}, Expanded roles: {}, Combined: {}", tokenRoles, expandedRoles, localRoles);
     } else {
-      localRoles = tokenRoles;
+      log.debug("Token roles: {}", tokenRoles);
     }
     log.debug("Token roles: {} => Local roles: {} ", tokenRoles, localRoles);
     return localRoles.stream()

@@ -52,7 +52,7 @@ public class TeacherBioClient {
         .withClientRegistrationId("client-credential")
         .principal("my-application")
         .build();
-    var client = oAuth2AuthorizedClientManager.authorize(request); // <-- refreshes AT if expired
+    var client = oAuth2AuthorizedClientManager.authorize(request); // <-- refreshes AT if it's expired
     if (client == null) {
       throw new IllegalStateException("Failed to authorize client with registration ID 'client-credential'. " +
           "Check that the client registration exists in application properties and OAuth2AuthorizedClientManager is properly configured.");
