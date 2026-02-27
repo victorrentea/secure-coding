@@ -1,3 +1,18 @@
+# ----- Authorization Code Flow ------
+
+# STEP 1: Authorization Code Flow - Get Authorization Code
+# Open this URL in browser to authenticate and get the authorization code
+# http://localhost:8180/auth/realms/LearningRealm/protocol/openid-connect/auth?client_id=spring-app&redirect_uri=http://localhost:8080/login/oauth2/code/spring-app&response_type=code&scope=openid%20profile%20offline_access
+# After login, you'll be redirected to: http://localhost:8080/login/oauth2/code/spring-app?code=XXXXX
+# Copy the 'code' parameter from the URL
+
+### STEP 2: Authorization Code Flow - Exchange Code for Tokens
+POST http://localhost:8180/auth/realms/LearningRealm/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+client_id=spring-app&client_secret=FC3lSwLnRyYzpRzfHhws7IqwP7oyW1h3&grant_type=authorization_code&code=PASTE_CODE_HERE&redirect_uri=http://localhost:8080/login/oauth2/code/spring-app
+
+# ----- Password Flow ------
 ### GET AccessToken from KeyCloak by user/pass
 # Requires "Direct Access Grants Enabled" on spring-app client
 POST http://localhost:8180/auth/realms/LearningRealm/protocol/openid-connect/token
@@ -5,12 +20,13 @@ Content-Type: application/x-www-form-urlencoded
 
 client_id=spring-app&grant_type=password&username=user&password=user&client_secret=FC3lSwLnRyYzpRzfHhws7IqwP7oyW1h3
 
-
+# ----- Refresh Flow ------
 ### call to get a new access token based on the old refresh token
 POST http://localhost:8180/auth/realms/LearningRealm/protocol/openid-connect/token
 Content-Type: application/x-www-form-urlencoded
 
 client_id=spring-app&grant_type=refresh_token&refresh_token=eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ6cWdiVjZpRDRXUU1NWUQ4SndlUzJ1ZGR4YmE1Tk0zMlZESlFiZzBtRFZBIn0.eyJleHAiOjE3NjQwMzI3NjYsImlhdCI6MTc2NDAzMTg2NiwiYXV0aF90aW1lIjoxNzY0MDMxODgxLCJqdGkiOiJiZTlhY2JlZi1lZTc3LTQzZTctODI2Zi1hZjYyYTIxY2E3Y2QiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgxODAvYXV0aC9yZWFsbXMvTGVhcm5pbmdSZWFsbSIsImF1ZCI6InNwcmluZy1hcHAiLCJzdWIiOiJiNzE1M2NjNy1mMDU1LTQ5MjgtYjI2My1mMGYzYTVhZTgwMzIiLCJ0eXAiOiJSZWZyZXNoIiwiYXpwIjoic3ByaW5nLWFwcCIsIm5vbmNlIjoianJja3VhREhfODRPMmFuUmlOem9XVmZkT19QLUU4MTM3SWctZ2hXaENVMCIsInNlc3Npb25fc3RhdGUiOiIwYTM0ZDdhYi0xNTFkLTQxMGUtOGViOS0xZDg3YjIzYTE5YTMiLCJhdF9oYXNoIjoiYXNPU2VESU1GX3I1bm5JWGhJNDRLZyIsImFjciI6IjAiLCJzaWQiOiIwYTM0ZDdhYi0xNTFkLTQxMGUtOGViOS0xZDg3YjIzYTE5YTMiLCJyZXNvdXJj
+
 
 ### GET using AccessToken to spring-micro
 GET http://localhost:8082/api/teachers/1/bio
