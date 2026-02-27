@@ -32,7 +32,6 @@
 </h3>
 
 <!-- SPA as the OAuth Client -->
-<!-- TODO: enable keycloak-fe profile -->
 <script type="text/javascript" src="http://localhost:8180/auth/js/keycloak.js"></script>
 <script type="text/javascript">
     let keycloak = null;
@@ -53,7 +52,7 @@
                 console.log("idToken", keycloak.idTokenParsed)
                 console.log("accessToken", keycloak.tokenParsed)
                 console.log("refreshToken", keycloak.refreshTokenParsed)
-                startApp();
+                startApp(); // again after getting token
             } else {
                 oauthstatus.innerText = '❌ NOT authenticated';
             }
@@ -62,7 +61,7 @@
             console.log(e);
         });
     }
-    // keycloakLoginAsSPA();
+    keycloakLoginAsSPA(); // for keycloak-fe profile
 </script>
 
 <div id="trainingMain" style="border:2px solid red">
@@ -267,6 +266,7 @@
 
         populateLanguageSelect($("#editLanguage"));
     }
+    startApp();
 
     function populateTeacherSelect($teacherSelect) {
         $teacherSelect.html("");
