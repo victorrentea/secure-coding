@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
+import victor.training.spring.security.keycloak.TokenUtils;
 
 import java.time.ZoneId;
 
@@ -32,10 +33,10 @@ public class TeacherBioClient {
 //    String token = "joke";
 
 //     #2 Propagate user Access Token
-//    var token = TokenUtils.getCurrentToken().orElseThrow();
+    var token = TokenUtils.getCurrentToken().orElseThrow();
 
     // #3 Client-Credentials - login this app to KeyCloak)
-    var token = getClientCredentialsToken();
+//    var token = getClientCredentialsToken();
     log.info("Sending JWT AT: {}", token);
 
     return restClient.get()
@@ -45,24 +46,24 @@ public class TeacherBioClient {
         .body(String.class);
   }
 
-  private final OAuth2AuthorizedClientManager oAuth2AuthorizedClientManager;
+//  private final OAuth2AuthorizedClientManager oAuth2AuthorizedClientManager;
 
-  private String getClientCredentialsToken() {
-    var request = OAuth2AuthorizeRequest
-        .withClientRegistrationId("client-credential")
-        .principal("my-application")
-        .build();
-    var client = oAuth2AuthorizedClientManager.authorize(request); // <-- refreshes AT if it's expired
-    if (client == null) {
-      throw new IllegalStateException("Failed to authorize client with registration ID 'client-credential'. " +
-          "Check that the client registration exists in application properties and OAuth2AuthorizedClientManager is properly configured.");
-    }
-    var token = client.getAccessToken().getTokenValue();
-    log.info("Using access token (exp:{}): {}",
-        client.getAccessToken().getExpiresAt().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-        token);
-    return token;
-  }
+//  private String getClientCredentialsToken() {
+//    var request = OAuth2AuthorizeRequest
+//        .withClientRegistrationId("client-credential")
+//        .principal("my-application")
+//        .build();
+//    var client = oAuth2AuthorizedClientManager.authorize(request); // <-- refreshes AT if it's expired
+//    if (client == null) {
+//      throw new IllegalStateException("Failed to authorize client with registration ID 'client-credential'. " +
+//          "Check that the client registration exists in application properties and OAuth2AuthorizedClientManager is properly configured.");
+//    }
+//    var token = client.getAccessToken().getTokenValue();
+//    log.info("Using access token (exp:{}): {}",
+//        client.getAccessToken().getExpiresAt().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+//        token);
+//    return token;
+//  }
 
 }
 

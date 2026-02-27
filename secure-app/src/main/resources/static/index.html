@@ -37,11 +37,6 @@
     let keycloak = null;
     let accessToken = null;
 
-    /**
-     * Calculate token expiration details
-     * @param {number} expirationTimestamp - Unix timestamp in seconds (from token.exp)
-     * @returns {object} - { localTime: string, deltaMinutes: number, deltaSeconds: number }
-     */
     function getTokenExpirationInfo(expirationTimestamp) {
         const accessTokenExp = expirationTimestamp * 1000; // Convert to milliseconds
         const expirationDate = new Date(accessTokenExp);
@@ -93,7 +88,7 @@
             console.log(e);
         });
     }
-    //keycloakLoginAsSPA(); // for keycloak-fe profile
+    keycloakLoginAsSPA(); // for keycloak-fe profile
 </script>
 
 <div id="trainingMain" style="border:2px solid red">
