@@ -1,6 +1,7 @@
 package victor.training.spring.security.keycloak;
 
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.regex.qual.Regex;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,9 +14,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -23,6 +23,7 @@ public class TokenUtils {
   public static void printTheTokens() {
     printTheTokens(SecurityContextHolder.getContext().getAuthentication());
   }
+
   public static void printTheTokens(Authentication authentication) {
     Object principal = authentication.getPrincipal();
     if (principal instanceof DefaultOidcUser oidcUser) {
@@ -76,6 +77,42 @@ public class TokenUtils {
       return Optional.of(jwt.getTokenValue());
     }
     return Optional.empty();
+  }
+
+  public static List<Long> getManagedTeacherIds() {
+    SecurityContext context = SecurityContextHolder.getContext();
+    if (context == null) {
+      return List.of();
+    }
+    Authentication authentication = context.getAuthentication();
+    if (authentication == null) {
+      return List.of();
+    }
+    Object principal = authentication.getPrincipal();
+
+    Object claimValue = null;
+    if (principal instanceof OidcUser oidcUser) {
+      claimValue = oidcUser.getAttributes().get("managedTeacherIds");
+    } else if (principal instanceof Jwt jwt) {
+      claimValue = jwt.getClaims().get("managedTeacherIds");
+    }
+
+    if (claimValue == null) {
+      return List.of();
+    }
+
+    String commaSeparatedIds = claimValue.toString().trim();
+    try {
+      Pattern p = Pattern.compile("\\s*,\\s*");
+      return p.splitAsStream(commaSeparatedIds)
+          .map(String::trim)
+          .filter(trimmed -> !trimmed.isEmpty())
+          .map(Long::parseLong)
+          .toList();
+    } catch (NumberFormatException e) {
+      log.warn("Failed to parse managedTeacherId: '{}'", commaSeparatedIds);
+      return List.of();
+    }
   }
 
   private static String mapToPrettyJson(Map<String, Object> map) {

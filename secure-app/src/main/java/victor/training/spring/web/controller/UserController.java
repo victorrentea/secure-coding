@@ -35,6 +35,7 @@ public class UserController {
     dto.managedTeacherIds = userRepo.findByUsername(dto.username).stream()
         .flatMap(user -> user.getManagedTeacherIds().stream())
         .toList();
+    //dto.managedTeacherIds = TokenUtils.getManagedTeacherIds();
     TokenUtils.printTheTokens();
     return dto;
   }
