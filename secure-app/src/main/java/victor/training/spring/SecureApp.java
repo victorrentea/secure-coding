@@ -31,8 +31,6 @@ import org.springframework.security.oauth2.client.web.client.RequestAttributePri
 import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
-import victor.training.spring.web.controller.util.TestDBConnectionInitializer;
-
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
@@ -50,7 +48,6 @@ public class SecureApp {
 
   public static void main(String[] args) {
     new SpringApplicationBuilder(SecureApp.class)
-        .listeners(new TestDBConnectionInitializer())
         .run(args);
   }
 
