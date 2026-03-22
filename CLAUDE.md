@@ -72,11 +72,15 @@ Each vulnerability exercise should have:
 
 | File | Role |
 |------|------|
-| `V{N}_{Name}.java` | Vulnerable endpoint + entity + repo (all in one file) |
-| `V{N}_{Name}.http` | Investigation and attack requests, with scrolling-hidden hints |
-| `V{N}_{Name}.md` | Walkthrough with `<details>` collapsible sections per phase |
-| `V{N}_{Name}Test.java` | Tests: `@Disabled` on master, enabled on solutions |
+| `SV{N}_{Name}.java` | Vulnerable endpoint + entity + repo (all in one file) |
+| `SV{N}_{Name}.http` | Investigation and attack requests, with scrolling-hidden hints |
+| `SV{N}_{Name}.md` | Walkthrough with `<details>` collapsible sections per phase |
+| `SV{N}_{Name}Test.java` | Tests: `@Disabled` on master, enabled on solutions |
 | `{name}.html` | Frontend page (in `static/vulnerability/`) |
+
+### Markdown walkthrough rules
+- Each `.md` file starts with a note telling the participant to **render the markdown visually** (e.g., IntelliJ preview, GitHub, or a markdown viewer) rather than reading the raw text — so that `<details>` blocks work and content is revealed progressively.
+- Each fix section must include the **relevant code snippet** (brief, a few lines) showing exactly what the fix looks like. Don't just describe it — show the code.
 
 ### Scrolling hints in .http files
 Hints are separated from the challenge by a long block of empty comments. The student must scroll deliberately — they won't see the hint by accident.
