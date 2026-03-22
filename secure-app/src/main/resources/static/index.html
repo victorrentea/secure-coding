@@ -154,8 +154,8 @@
     <input type="button" value="Cancel" onclick="$('#trainingEditDiv').hide();$('#trainingMain').show();">
 </div>
 
-<div style="text-align: center; background: white">
-    <span id="currentUserJson" style="font-size: medium; color: gray"></span>
+<div style="text-align: left; background: white">
+    <pre id="currentUserJson" style="font-size: medium; color: gray; font-family: monospace"></pre>
 </div>
 
 
@@ -302,7 +302,7 @@
         }).then(function (user) {
             currentUser = user;
             $("#username").text(user.username);
-            $("#currentUserJson").text(JSON.stringify(user));
+            $("#currentUserJson").text(JSON.stringify(user, null, 2));
             refreshTrainingsTable();
         });
 
