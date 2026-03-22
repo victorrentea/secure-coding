@@ -49,7 +49,6 @@ public class TrainingController {
   @PutMapping("{trainingId}")
   public void update(@PathVariable Long trainingId, @RequestBody @Valid TrainingDto dto) {
     dto.id = trainingId;
-    // TODO sanitizeRichText() against XSS + where else?...
     trainingService.updateTraining(dto);
   }
 
