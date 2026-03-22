@@ -2,7 +2,7 @@ package victor.training.web.controller.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import victor.training.security.VisibleForRoleAspect.VisibleForRole;
+import victor.training.config.VisibleForRoleAspect.VisibleForRole;
 import victor.training.web.entity.ContractType;
 import victor.training.web.entity.ProgrammingLanguage;
 import victor.training.web.entity.Training;

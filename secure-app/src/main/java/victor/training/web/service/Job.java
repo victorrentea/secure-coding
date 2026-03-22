@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static victor.training.security.RunAs.withExtraRoles;
+import static victor.training.config.RunAs.withExtraRoles;
 
 @Slf4j
 @RequiredArgsConstructor

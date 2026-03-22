@@ -238,7 +238,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>victor.training.security.SSOApplication</mainClass>
+                    <mainClass>victor.training.config.SSOApplication</mainClass>
                 </configuration>
             </plugin>
 

@@ -10,8 +10,8 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
-import victor.training.security.keycloak.ClientCredentialProvider;
-import victor.training.security.keycloak.TokenUtils;
+import victor.training.config.keycloak.ClientCredentialProvider;
+import victor.training.config.keycloak.TokenUtils;
 
 import java.time.ZoneId;
 import java.util.Optional;

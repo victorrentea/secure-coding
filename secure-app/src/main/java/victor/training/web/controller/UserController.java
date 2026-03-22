@@ -6,8 +6,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-//import victor.training.security.config.keycloak.KeyCloakUtils;
-import victor.training.security.keycloak.TokenUtils;
+//import victor.training.config.keycloak.KeyCloakUtils;
+import victor.training.config.keycloak.TokenUtils;
 import victor.training.web.controller.dto.CurrentUserDto;
 import victor.training.web.repo.UserRepo;
 
