@@ -28,8 +28,8 @@
 <h4 style="margin: 4px 0;">Hello,
     <span id="username"></span> <span id="oauthstatus"></span>
     <input type="button" value="logout" onclick="window.location='logout'" style="padding: 1px 6px; font-size: small;"/>
-    <span id="currentUserJson" style="font-size: small; color: gray; font-family: monospace;"></span>
 </h4>
+<pre id="currentUserJson" style="font-size: small; color: gray; font-family: monospace; font-weight: normal; background: white; display: inline-block; padding: 2px 6px; margin: 0;"></pre>
 
 <!-- SPA as the OAuth Client -->
 <script type="text/javascript" src="http://localhost:8180/auth/js/keycloak.js"></script>
@@ -314,7 +314,7 @@
         }).then(function (user) {
             currentUser = user;
             $("#username").text(user.username);
-            $("#currentUserJson").text(JSON.stringify(user));
+            $("#currentUserJson").text(JSON.stringify(user, null, 2));
             refreshTrainingsTable();
         });
 
