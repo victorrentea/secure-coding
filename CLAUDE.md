@@ -78,12 +78,57 @@ Each vulnerability exercise should have:
 | `SV{N}_{Name}Test.java` | Tests: `@Disabled` on master, enabled on solutions |
 | `{name}.html` | Frontend page (in `static/vulnerability/`) |
 
-### Markdown walkthrough rules
-- Each `.md` file starts with a note telling the participant to **render the markdown visually** (e.g., IntelliJ preview, GitHub, or a markdown viewer) rather than reading the raw text — so that `<details>` blocks work and content is revealed progressively.
-- Each fix section must include the **relevant code snippet** (brief, a few lines) showing exactly what the fix looks like. Don't just describe it — show the code.
+### `.http` file structure
+Each `.http` file follows this pattern:
+1. **Banner header** — exercise name in a `### ===` block
+2. **Normal request(s)** — legitimate usage so the student sees expected behavior first
+3. **Challenge comment** — a question prompting the student to try an attack (no hints here)
+4. **Attack requests** — each prefixed with `### ✅` and a short description of the exploit
+5. **Verification request** (optional) — confirms the attack worked (e.g., re-fetch to see changed data)
 
-### Scrolling hints in .http files
-Hints are separated from the challenge by a long block of empty comments. The student must scroll deliberately — they won't see the hint by accident.
+Rules:
+- **No hints in `.http` files** — hints and explanations go in the `.md` walkthrough only
+- Attack URLs are marked with `### ✅` so they're easy to clean up before sharing the exercise branch
+- Keep URLs readable — use spaces (IntelliJ HTTP client supports them), not `%20`
+- One `.http` file per exercise, self-contained
+
+Example pattern:
+```http
+### =============================================
+###  Exercise Name
+### =============================================
+
+### Normal request
+GET http://localhost:8080/api/vulnerability/example?param=value
+
+### Challenge: Can you do X?
+
+### ✅ Attack description
+GET http://localhost:8080/api/vulnerability/example?param=payload
+
+### ✅ Verify the attack worked
+GET http://localhost:8080/api/vulnerability/example
+```
+
+### `.md` walkthrough structure
+Each `.md` file follows this pattern:
+1. **Title** — `# Vulnerability Name`
+2. **Render notice** — tells the participant to render markdown visually (for `<details>` blocks)
+3. **Start here** — numbered steps: read the code, open `.http`, come back when stuck
+4. **Collapsible phases** — each in a `<details>` block with emoji-prefixed summary, separated by `---`
+
+Phase progression:
+- **🔍 Phase 1: Spot the vulnerability** — points to the dangerous code pattern
+- **💥 Phase 2+: Exploit** — one phase per attack vector, escalating severity
+- **🛡️ Phase N-1: The fix** — shows the exact code snippet for the fix
+- **🎯 Phase N: Key takeaways** — numbered principles learned
+
+Rules:
+- Every phase/section must have an **emoji prefix**
+- Each fix section must include the **relevant code snippet** (brief, a few lines) — show the code, don't just describe it
+- All hints and explanations go here, not in `.http` files
+- Phases are progressive — each builds on the previous discovery
+- Use `<details><summary>` for progressive disclosure
 
 ## Code Conventions
 - All vulnerability exercises live in `secure-app/src/main/java/victor/training/vulnerability/`
