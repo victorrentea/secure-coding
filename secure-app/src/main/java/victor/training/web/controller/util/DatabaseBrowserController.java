@@ -37,10 +37,20 @@ public class DatabaseBrowserController {
     html.append("<h1>Database Browser</h1>");
     html.append("<p class='info'>Auto-refreshes on page reload. Showing max ").append(MAX_ROWS_PER_TABLE).append(" rows per table.</p>");
 
+    // Table of contents
+    html.append("<table style='width:auto;margin-bottom:20px'><tr><th>Table</th><th>Rows</th></tr>");
+    for (Map<String, Object> tableRow : tables) {
+      String tableName = (String) tableRow.get("TABLE_NAME");
+      Long count = jdbc.queryForObject("SELECT COUNT(*) FROM \"" + tableName + "\"", Long.class);
+      html.append("<tr><td><a href='#").append(escapeHtml(tableName)).append("'>")
+          .append(escapeHtml(tableName)).append("</a></td><td>").append(count).append("</td></tr>");
+    }
+    html.append("</table>");
+
     for (Map<String, Object> tableRow : tables) {
       String tableName = (String) tableRow.get("TABLE_NAME");
       Long totalCount = jdbc.queryForObject("SELECT COUNT(*) FROM \"" + tableName + "\"", Long.class);
-      html.append("<h2>").append(escapeHtml(tableName))
+      html.append("<h2 id='").append(escapeHtml(tableName)).append("'>").append(escapeHtml(tableName))
           .append(" <span style='font-size:14px;color:#888'>(").append(totalCount).append(" rows)</span></h2>");
 
       if (totalCount == 0) {
