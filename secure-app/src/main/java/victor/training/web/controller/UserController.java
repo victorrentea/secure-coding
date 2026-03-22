@@ -24,17 +24,14 @@ public class UserController {
   public CurrentUserDto getCurrentUser() {
     log.info("Get current user");
     CurrentUserDto dto = new CurrentUserDto();
-//    dto.username = "<todo-username>"; // TODO
-    dto.username= SecurityContextHolder.getContext().getAuthentication().getName();
-//    dto.authorities = List.of(); // TODO
-    dto.authorities = SecurityContextHolder.getContext().getAuthentication()
-        .getAuthorities()
-        .stream()
-        .map(Object::toString)
-        .toList();
-    dto.managedTeacherIds = userRepo.findByUsername(dto.username).stream()
-        .flatMap(user -> user.getManagedTeacherIds().stream())
-        .toList();
+    dto.username = "<todo-username>"; // TODO X extract username from SecurityContextHolder
+    // SOLUTION: dto.username = SecurityContextHolder.getContext().getAuthentication().getName();
+    dto.authorities = List.of(); // TODO X extract authorities from SecurityContextHolder
+    // SOLUTION: dto.authorities = SecurityContextHolder.getContext().getAuthentication()
+    //     .getAuthorities().stream().map(Object::toString).toList();
+    dto.managedTeacherIds = List.of(); // TODO X load managed teacher IDs from userRepo
+    // SOLUTION: dto.managedTeacherIds = userRepo.findByUsername(dto.username).stream()
+    //     .flatMap(user -> user.getManagedTeacherIds().stream()).toList();
     //dto.managedTeacherIds = TokenUtils.getManagedTeacherIds();
     TokenUtils.printTheTokens();
     return dto;
@@ -46,14 +43,8 @@ public class UserController {
 class Other {
   public void deep() {
     log.info("Somewhere in a repository...");
-//      String username = "TODO";
-    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    String username = "TODO"; // TODO X extract username from SecurityContextHolder
+    // SOLUTION: String username = SecurityContextHolder.getContext().getAuthentication().getName();
     log.info("... created_by=" + username);
   }
 }
-//    dto.username = SecurityContextHolder.getContext().getAuthentication().getName();
-//    dto.authorities = SecurityContextHolder.getContext().getAuthentication()
-//        .getAuthorities()
-//        .stream()
-//        .map(Objects::toString)
-//        .toList();
