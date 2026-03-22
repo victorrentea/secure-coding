@@ -61,23 +61,42 @@ This training teaches backend developers to identify and fix common security vul
 
 ---
 
-### Exercise 1.3 — XSS via Rich Text (Stored XSS)
-**File:** `web/controller/TrainingController.java` + `security/RichTextSanitizer.java`
+### Exercise 1.3 — XSS (Cross-Site Scripting)
+**Files:** `vulnerability/XSS.java` + `web/controller/TrainingController.java` + `security/RichTextSanitizer.java` + `static/vulnerability/xss.html`
 **Difficulty:** ★★☆
 
-**Context:** Training descriptions support rich text (HTML). If not sanitized, an attacker can inject `<script>` tags that execute in other users' browsers.
+**Context:** This exercise covers all 3 types of XSS. Students discover the type as a side conclusion.
 
+#### Phase 1 — Stored XSS
 **Steps:**
-1. Create a training via `POST /api/trainings` with `description: "<b>Bold</b> <script>alert('xss')</script>"`
-2. Fetch it back and inspect — the script tag is stored and returned as-is
-3. If rendered in a browser, it would execute
+1. Open `xss.html` in the browser — use the Phase 1 section
+2. Create a training with description: `<b>Bold</b> <img src=x onerror=alert('StoredXSS')>`
+3. Load trainings — the script executes in the browser because the description is stored in the DB and served as-is
 
 **Fix tasks:**
-- [ ] Apply `sanitizeRichText()` in the `update()` method before saving (it's already defined but not called)
-- [ ] Discuss: Where else should sanitization happen? (Answer: in `create()` too, and ideally via the AOP-based `RichTextSanitizer`)
+- [ ] Apply `sanitizeRichText()` in TrainingController's `create()` and `update()` methods before saving
+- [ ] Or: uncomment `@RichText` on `TrainingDto.description` to enable the AOP-based `RichTextSanitizer`
 - [ ] Explore `RichTextSanitizer.java` — understand the allow-list approach (FORMATTING + BLOCKS only)
 
-**Key takeaway:** Sanitize HTML on the server side using an allow-list (not a block-list). The OWASP HTML Sanitizer library is purpose-built for this.
+#### Phase 2 — Reflected XSS
+**Steps:**
+1. Open `xss.html` — use the Phase 2 section
+2. Enter `<script>alert('ReflectedXSS')</script>` as the search query
+3. The endpoint echoes the query directly into the HTML response — the script executes
+
+**Fix tasks:**
+- [ ] In `XSS.search()`, HTML-escape the query before embedding: `HtmlUtils.htmlEscape(query)`
+
+#### Phase 3 — DOM-based XSS
+**Steps:**
+1. Open `xss.html#<img src=x onerror=alert('DomXSS')>` in the browser
+2. The page reads `location.hash` and injects it into the DOM via `innerHTML` — the script executes
+3. Note: this attack never reaches the server — it's purely client-side
+
+**Fix tasks:**
+- [ ] In `xss.html`, change `innerHTML` to `textContent` in the `renderFragment()` function
+
+**Key takeaway:** XSS comes in 3 flavors — stored (persisted in DB), reflected (echoed in response), and DOM-based (client-side only). Each requires a different fix: server-side HTML sanitization, HTML escaping, and safe DOM APIs respectively.
 
 ---
 
