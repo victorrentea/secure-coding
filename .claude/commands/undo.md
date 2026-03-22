@@ -4,18 +4,22 @@ Work through ALL files matching `SV*` in the project (Java, .http, .html, tests)
 
 ## Rules for Java files (`SV*.java`)
 
-1. **Lines marked `// ✅`**: Remove the entire line. If the ✅ is on a class/record/enum definition, remove the entire type (including its body and closing brace).
-2. **Lines marked `// ❌`**: Uncomment them — remove the `// ❌` prefix and any leading `//` to make the code active again.
-3. **After all ✅/❌ processing**: Clean up unused imports. The code MUST compile.
+1. **Lines with `// ✅` at the end of active code**: Remove the entire line.
+   - If the ✅ is on a class/record/enum definition, remove the entire type (including its body and closing brace).
+2. **Lines with `// ✅` that are standalone comments** (the line is a comment starting with `//` and containing ✅): Remove the line AND any adjacent consecutive commented-out code lines that form the same block. "Adjacent" means immediately before or after, with no blank line separating them. This ensures fix code grouped under a ✅ section header is fully removed.
+3. **Lines starting with `// ❌`** (commented-out vulnerable code): Uncomment them — remove the `// ❌` prefix and leading `//` to make the code active again. Adjust indentation to match surrounding code.
+4. **Lines where `// ❌` appears at the end of active code**: Just remove the `// ❌...` suffix. Keep the code active.
+5. **After all ✅/❌ processing**: Clean up unused imports. The code MUST compile.
 
 ## Rules for .http files (`SV*.http`)
 
-1. **Lines/blocks marked `### ✅`**: Remove the `### ✅` comment line AND the request URL(s) that follow it (up to the next section or blank line).
+1. **Lines/blocks marked `### ✅`**: Remove the `### ✅` comment line AND the request URL(s) and body that follow it (up to the next `###` section header or double blank line).
 2. Keep all unmarked requests (investigation/normal requests).
+3. After cleanup, collapse any runs of 3+ consecutive blank lines down to 2.
 
 ## Rules for .html files (in `static/vulnerability/`)
 
-1. Same convention: if you see ✅, remove; if you see ❌, uncomment.
+1. Same convention: if you see ✅, remove (including adjacent block); if you see ❌, uncomment.
 
 ## Rules for test files (`SV*Test.java`)
 
