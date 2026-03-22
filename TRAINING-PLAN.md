@@ -13,7 +13,7 @@ This training teaches backend developers to identify and fix common security vul
 ## Setup
 
 1. Start the app: `./mvnw spring-boot:run -pl secure-app` (uses profile `disabled` for exercises, no auth needed initially)
-2. H2 console available at `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:testdb`)
+2. H2 console available at `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:testdb`, user: `sa`, password: `sa`)
 3. HTTP requests for testing in `requests.http` (use IntelliJ HTTP client or curl)
 
 ---
