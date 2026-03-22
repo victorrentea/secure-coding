@@ -93,9 +93,9 @@
 </script>
 
 <div id="trainingMain" style="border:2px solid red">
-    <div id="searchDiv" style="border: 7px solid pink">
-        <label for="searchName">Name: </label><input id="searchName" type="text" size="10"/> <br/>
-        <label for="searchTeacher">Teacher: </label><select id="searchTeacher"></select> <br/>
+    <div id="searchDiv" style="border: 7px solid pink; padding: 4px;">
+        <label for="searchName">Name: </label><input id="searchName" type="text" size="10"/>
+        <label for="searchTeacher"> Teacher: </label><select id="searchTeacher"></select>
         <input type="button" onclick="search()" value="Search"/>
     </div>
     <div id="trainingTable">
@@ -155,9 +155,27 @@
 </div>
 
 <div style="text-align: left; background: white">
-    <pre id="currentUserJson" style="font-size: medium; color: gray; font-family: monospace"></pre>
+    <pre id="currentUserJson" style="font-size: medium; color: gray; font-family: monospace; margin: 4px 0;"></pre>
 </div>
 
+<div style="background: rgba(255,255,255,0.8); padding: 10px; margin-top: 10px; border-radius: 4px;">
+    <h3 style="margin-top: 0;">Security Vulnerabilities</h3>
+    <ul style="margin: 0; padding-left: 20px;">
+        <li><a href="vulnerability/sql-injection.html">SQL Injection</a></li>
+        <li><a href="vulnerability/jpql-injection.html">JPQL Injection</a></li>
+        <li><a href="vulnerability/massass.html">Mass Assignment</a></li>
+        <li><a href="vulnerability/xss.html">XSS (Cross-Site Scripting)</a></li>
+        <li><a href="vulnerability/sales.html">Broken Object-Level Authorization - Sales</a></li>
+        <li><a href="vulnerability/appointments.html">Broken Object-Level Authorization - Appointments</a></li>
+        <li><a href="vulnerability/exposure.html">Data Exposure</a></li>
+        <li><a href="vulnerability/reset-password.html">Broken Authentication - Reset Password</a></li>
+        <li><a href="vulnerability/limits.html">Rate/Volume Limiting</a></li>
+        <li><a href="vulnerability/upload.html">Upload File</a></li>
+        <li><a href="vulnerability/ssrf.html">Server-Side Request Forgery</a></li>
+        <li><a href="vulnerability/csrf.html">Cross-Site Request Forgery (CSRF)</a></li>
+        <li><a href="vulnerability/cors.html">Cross-Origin Resource Sharing (CORS)</a></li>
+    </ul>
+</div>
 
 <script type="text/javascript">
 
