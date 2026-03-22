@@ -125,27 +125,7 @@ This training teaches backend developers to identify and fix common security vul
 
 ---
 
-### Exercise 2.2 — IDOR: Horizontal Privilege Escalation (Shops)
-**File:** `vulnerability/ObjectAuthorizationShops.java`
-**Difficulty:** ★★☆
-
-**Context:** A shop owner can view their own shop's revenue. The revenue endpoint accepts any `shopId` in the URL path — there's no check that the current user owns that shop.
-
-**Steps:**
-1. Call `GET /api/vulnerability/shops/my` — note your shop ID (e.g., 2)
-2. Call `GET /api/vulnerability/shops/2/revenue-data.json` — this works (your shop)
-3. **Exploit:** Call `GET /api/vulnerability/shops/12/revenue-data.json` — you can see another shop's revenue!
-4. Call `GET /api/vulnerability/shops` — enumerate all 999 shops
-
-**Fix tasks:**
-- [ ] In `getRevenueData()`, compare `shopId` against `getShopIdOfCurrentUser()` and throw 403 if they don't match
-- [ ] Consider: should the `GET /api/vulnerability/shops` (list all shops) endpoint be restricted too?
-
-**Key takeaway:** Always verify that the authenticated user has access to the specific resource they're requesting. Never trust path/query parameters alone.
-
----
-
-### Exercise 2.3 — IDOR: Creating Resources for Other Users (Appointments)
+### Exercise 2.2 — IDOR: Creating Resources for Other Users (Appointments)
 **File:** `vulnerability/ObjectAuthorizationAppointments.java`
 **Difficulty:** ★★☆
 
