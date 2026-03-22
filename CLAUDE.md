@@ -26,8 +26,8 @@ Each vulnerability exercise should have:
 5. Both **backend and frontend** parts where applicable
 
 ## Code Conventions
-- All vulnerability exercises live in `secure-app/src/main/java/victor/training/spring/vulnerability/`
-- Tests live in `secure-app/src/test/java/victor/training/spring/`
+- All vulnerability exercises live in `secure-app/src/main/java/victor/training/vulnerability/`
+- Tests live in `secure-app/src/test/java/victor/training/`
 - Each exercise is self-contained in a single file (entity, repo, controller, DTOs all together)
 - Use Spring Boot test slices (`@SpringBootTest` + `@AutoConfigureMockMvc`) for integration tests
 - Use `@WithMockUser` for auth-related tests

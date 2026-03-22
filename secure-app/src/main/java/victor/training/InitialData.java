@@ -1,0 +1,87 @@
+package victor.training;
+
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import victor.training.web.entity.*;
+import victor.training.web.repo.TeacherRepo;
+import victor.training.web.repo.TrainingRepo;
+import victor.training.web.repo.UserRepo;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+
+import static victor.training.web.entity.ProgrammingLanguage.JAVA;
+import static victor.training.web.entity.ProgrammingLanguage.PHP;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class InitialData {
+  private final TrainingRepo trainingRepo;
+  private final TeacherRepo teacherRepo;
+  private final UserRepo userRepo;
+
+  @PostConstruct
+  public void run() throws Exception {
+    log.info("Inserting initial training data");
+
+
+    Teacher victor = teacherRepo.save(new Teacher("Victor.1").setContractType(ContractType.INDEPENDENT));
+    Teacher ionut = teacherRepo.save(new Teacher("Ionut.2").setContractType(ContractType.PART));
+
+    Training spring = new Training()
+        .setName("Spring Framework")
+        .setStartDate(LocalDate.now().plusDays(10))
+        .setDescription("<p>All about <b>Spring</b></p>")
+        .setProgrammingLanguage(JAVA)
+        .setTeacher(victor)
+        .setCreatedBy("admin");
+    Training jpa = new Training()
+        .setName("JPA")
+        .setStartDate(LocalDate.now().plusDays(2))
+        .setDescription("<p>The coolest standard in Java EE</p>")
+        .setProgrammingLanguage(JAVA)
+        .setTeacher(victor)
+        .setCreatedBy("admin");
+    Training javaBasic = new Training()
+        .setName("Java Basic")
+        .setStartDate(LocalDate.now().plusDays(20))
+        .setDescription("<p>The new way of doing Single Page Applications</p>")
+        .setProgrammingLanguage(JAVA)
+        .setTeacher(ionut)
+        .setCreatedBy("admin");
+    Training patterns = new Training()
+        .setName("Design Patterns")
+        .setStartDate(LocalDate.now().plusDays(5))
+        .setDescription("<p>Design Thinking</p>")
+        .setProgrammingLanguage(PHP)
+        .setTeacher(victor)
+        .setCreatedBy("admin");
+
+    trainingRepo.save(spring);
+    trainingRepo.save(jpa);
+    trainingRepo.save(javaBasic);
+    trainingRepo.save(patterns);
+
+    userRepo.save(new User()
+        .setUsername("admin")
+        .setName("Za Boss")
+        .setRole(UserRole.ADMIN)
+        .setManagedTeacherIds(Set.of(victor.getId()))); // only manages Victor, not Ionut
+    userRepo.save(new User()
+        .setUsername("power")
+        .setName("PowerHorse")
+        .setRole(UserRole.POWER)
+        .setManagedTeacherIds(Set.of(ionut.getId())));
+    userRepo.save(new User()
+        .setUsername("user")
+        .setName("Clerk")
+        .setRole(UserRole.USER)
+        .setManagedTeacherIds(Set.of()));
+  }
+
+
+}
