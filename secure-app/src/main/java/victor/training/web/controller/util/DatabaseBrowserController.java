@@ -34,6 +34,7 @@ public class DatabaseBrowserController {
     html.append(".info{color:#888;font-style:italic;margin-bottom:20px}");
     html.append(".empty{color:#999}");
     html.append("</style></head><body>");
+    html.append("<a href='/'>🏠 Home</a>");
     html.append("<h1>Database Browser</h1>");
     html.append("<p class='info'>Auto-refreshes on page reload. Showing max ").append(MAX_ROWS_PER_TABLE).append(" rows per table.</p>");
 
