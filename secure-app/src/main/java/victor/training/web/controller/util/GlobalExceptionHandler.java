@@ -23,6 +23,13 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
+  @ResponseStatus(BAD_REQUEST)
+  @ExceptionHandler(IllegalArgumentException.class)
+  public String onIllegalArgument(IllegalArgumentException exception) {
+    log.warn(exception.getMessage());
+    return exception.getMessage();
+  }
+
   @ResponseStatus(INTERNAL_SERVER_ERROR)
   @ExceptionHandler(Exception.class)
   public String onException(Exception exception, HttpServletRequest request) throws Exception {
