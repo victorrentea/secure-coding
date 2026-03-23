@@ -29,8 +29,8 @@ This training teaches backend developers to identify and fix common security vul
 **Steps:**
 1. Call `GET /api/vulnerability/sql-injection?name=Ana&orderBy=NAME` — observe normal behavior
 2. **Exploit the WHERE clause:** Try `name=' OR '1'='1` — observe it returns all students, bypassing the tenant filter
-3. **Exploit the ORDER BY clause:** Try `orderBy=NAME; DROP TABLE STUDENT--` or `orderBy=(CASE WHEN 1=1 THEN NAME ELSE TENANT_ID END)` for data exfiltration
-4. **Exploit JPQL injection:** Call `GET /api/vulnerability/jpql-injection?name=' OR '1'='1` — observe it leaks students from other tenants (ASE, UNIBUC)
+3. **Exploit the ORDER BY clause:** Try `orderBy=NAME; DROP TABLE STUDENT--` or `orderBy=(CASE WHEN 1=1 THEN NAME ELSE UNIVERSITY_ID END)` for data exfiltration
+4. **Exploit JPQL injection:** Call `GET /api/vulnerability/jpql-injection?name=' OR '1'='1` — observe it leaks students from other universities (ASE, UNIBUC)
 
 **Fix tasks:**
 - [ ] Replace string concatenation in `sqlInjection()` with parameterized queries using `jdbcTemplate.query()` with `?` placeholders
