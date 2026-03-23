@@ -146,7 +146,7 @@ This training teaches backend developers to identify and fix common security vul
 ---
 
 ### Exercise 2.3 — IDOR: Creating Resources for Other Users (Appointments)
-**File:** `vulnerability/SV5_BOLA_Appointment.java`
+**File:** `vulnerability/SV6_BOLA_Appointment.java`
 **Difficulty:** ★★☆
 
 **Context:** A patient portal lets users create medical appointments. The `createAppointment` endpoint accepts a `patientId` in the request body — but doesn't verify the current user is that patient.
