@@ -4,7 +4,6 @@
     <link href="toastr.min.css" rel="stylesheet"/>
     <link href="quill.snow.css" rel="stylesheet"/>
     <script type="text/javascript" src="quill.js"></script>
-    <script type="text/javascript" src="jquery-1.12.2.min.js"></script>
     <script type="text/javascript" src="toastr.min.js"></script>
     <style>
         html {
@@ -199,7 +198,7 @@
     Start Date (dd-mm-yyyy):<input type="text" id="newStartDate"/> <br/>
     Teacher: <select id="newTeacher"></select> <br/>
     <input type="button" value="Create" onclick="createTraining()">
-    <input type="button" value="Cancel" onclick="$('#trainingNewDiv').hide();$('#trainingMain').show();">
+    <input type="button" value="Cancel" onclick="document.getElementById('trainingNewDiv').style.display='none';document.getElementById('trainingMain').style.display=''">
 </div>
 
 <div id="trainingEditDiv" style="display:none; border:2px solid blue">
@@ -213,7 +212,7 @@
         <div id="editDescriptionQ" style="height: 100px"></div>
     </div>
     <div style="font-size: smaller" title="XSS warmup">&lt;img src='x' onerror='alert(2)'&gt; + see more XSS ideas in source
-        <!-- for (let i=0;i<10;i++) $.ajax(restEndpoint + "/trainings/"+i, {method: "DELETE"}) -->
+        <!-- for (let i=0;i<10;i++) fetch(restEndpoint + "/trainings/"+i, {method: "DELETE"}) -->
         <!-- fetch('http://localhost:9999/csrf/capture', {method: 'POST', body: JSON.stringify({token: document.cookie.match('(^|;)\\s*XSRF-TOKEN\\s*=\\s*([^;]+)')?.pop() || ''}), headers: {'Content-Type': 'application/json'}}) -->
         <!-- <img src='x' onerror='fetch(`api/salary/raise?who=vrentea&amount=MAX`).then(function (x) {alert(`Thank you!`)});'> -->
     </div>
@@ -223,7 +222,7 @@
     <b>Teacher Bio:</b> <br/>
     <div id="teacherBio"></div>
     <input type="button" value="Save" onclick="updateTraining()">
-    <input type="button" value="Cancel" onclick="$('#trainingEditDiv').hide();$('#trainingMain').show();">
+    <input type="button" value="Cancel" onclick="document.getElementById('trainingEditDiv').style.display='none';document.getElementById('trainingMain').style.display=''">
 </div>
 
 <a href="/db" target="_blank" title="Browse Database" style="position: fixed; top: 12px; right: 16px; z-index: 1000; font-size: 28px; text-decoration: none;">🗄️</a>
@@ -322,31 +321,30 @@
     let trainingsData = [];
 
     function fillTable(trainings) {
-        $("#trainingTable tr").each(function (i, r) {
-            if (i > 0) r.remove();
-        });
+        const table = document.querySelector("#trainingTable table");
+        const rows = table.querySelectorAll("tr");
+        for (let i = rows.length - 1; i > 0; i--) rows[i].remove();
         trainingsData = trainings;
-        let rows = "";
+        let html = "";
         for (let training of trainings) {
-            let row = `<tr id="${training.id}">`;
-            row += `<td class="training_name" onclick="showDescription(${training.id})"> ${training.name}</td>`;
-            row += `<td>${training.startDate}</td>`;
-            row += `<td>${training.language}</td>`;
-            row += `<td>${training.teacherName}</td>`;
-            row += '<td>';
-            row += `<input type="button" value="Edit" onclick="openEditTraining(${training.id})" />`;
+            html += `<tr id="${training.id}">`;
+            html += `<td class="training_name" onclick="showDescription(${training.id})"> ${training.name}</td>`;
+            html += `<td>${training.startDate}</td>`;
+            html += `<td>${training.language}</td>`;
+            html += `<td>${training.teacherName}</td>`;
+            html += '<td>';
+            html += `<input type="button" value="Edit" onclick="openEditTraining(${training.id})" />`;
 
 
             // if (currentUser.authorities.includes('ROLE_ADMIN'))
             // if (currentUser.authorities.some(a => ['ROLE_ADMIN','ROLE_POWER'].includes(a)))
             // if (currentUser.authorities.includes('ROLE_TRAINING_DELETE'))
-                row += `<input class="deleteButton" type="button" value="Delete" onclick="deleteTraining(${training.id})" />`;
+                html += `<input class="deleteButton" type="button" value="Delete" onclick="deleteTraining(${training.id})" />`;
 
-            row += '</td>';
-            row += '</tr>';
-            rows += row;
+            html += '</td>';
+            html += '</tr>';
         }
-        $('#trainingTable tr:last').after(rows);
+        table.querySelector("tr:last-child").insertAdjacentHTML("afterend", html);
     }
 
     function showDescription(id) {
@@ -372,8 +370,8 @@
                 "X-XSRF-TOKEN": xsrfToken
             },
             body: JSON.stringify({
-                name: $("#searchName").val(),
-                teacherId: $("#searchTeacher").val()
+                name: document.getElementById("searchName").value,
+                teacherId: document.getElementById("searchTeacher").value
             })
         }).then(function (trainings) {
             fillTable(trainings);
@@ -387,38 +385,40 @@
             method: "GET"
         }).then(function (user) {
             currentUser = user;
-            $("#username").text(user.username);
-            $("#currentUserJson").text(JSON.stringify(user, null, 2));
+            document.getElementById("username").textContent = user.username;
+            document.getElementById("currentUserJson").textContent = JSON.stringify(user, null, 2);
             refreshTrainingsTable();
         });
 
-        populateTeacherSelect($("#editTeacher"));
-        populateTeacherSelect($("#searchTeacher"));
-        $("#searchTeacher").append("<option></option>")
+        populateTeacherSelect(document.getElementById("editTeacher"));
+        populateTeacherSelect(document.getElementById("searchTeacher"));
+        document.getElementById("searchTeacher").insertAdjacentHTML("beforeend", "<option></option>");
 
-        populateLanguageSelect($("#editLanguage"));
+        populateLanguageSelect(document.getElementById("editLanguage"));
     }
     startApp();
 
-    function populateTeacherSelect($teacherSelect) {
-        $teacherSelect.html("");
+    function populateTeacherSelect(select) {
+        select.innerHTML = "";
         fetchJson(restEndpoint + "/teachers", {
             method: "GET"
         }).then(function (teachers) {
-            $.each(teachers, function (i, t) {
-                $teacherSelect.append('<option value="' + t.id + '">' + t.name + '</option>');
-            });
+            for (let t of teachers) {
+                select.insertAdjacentHTML("beforeend",
+                    '<option value="' + t.id + '">' + t.name + '</option>');
+            }
         });
     }
 
-    function populateLanguageSelect($select) {
-        $select.html("");
+    function populateLanguageSelect(select) {
+        select.innerHTML = "";
         fetchJson(restEndpoint + "/languages", {
             method: "GET"
         }).then(function (languages) {
-            $.each(languages, function (i, t) {
-                $select.append('<option value="' + t + '">' + t + '</option>');
-            });
+            for (let t of languages) {
+                select.insertAdjacentHTML("beforeend",
+                    '<option value="' + t + '">' + t + '</option>');
+            }
         });
     }
 
@@ -437,41 +437,39 @@
         fetchJson(restEndpoint + "/trainings/" + trainingId, {
             method: "GET"
         }).then(function (data) {
-            $("#editTrainingId").val(data.id);
-            $("#editName").val(data.name);
-            $("#editLanguage").val(data.language);
-            // $("#editDescription").val(data.description);
+            document.getElementById("editTrainingId").value = data.id;
+            document.getElementById("editName").value = data.name;
+            document.getElementById("editLanguage").value = data.language;
             editDescriptionQuill.root.innerHTML = data.description;
-            $("#editStartDate").val(data.startDate);
-            $("#editTeacher").val(data.teacherId);
-            $("#editCreatedBy").val(data.createdBy);
-            $("#teacherBio").text(data.teacherBio);
+            document.getElementById("editStartDate").value = data.startDate;
+            document.getElementById("editTeacher").value = data.teacherId;
+            document.getElementById("editCreatedBy").value = data.createdBy;
+            document.getElementById("teacherBio").textContent = data.teacherBio;
             versionUnderEdit = data.version;
-            $('#trainingMain').hide();
-            $('#trainingEditDiv').show();
+            document.getElementById("trainingMain").style.display = "none";
+            document.getElementById("trainingEditDiv").style.display = "";
         });
     }
 
     function updateTraining() {
-        fetchJson(restEndpoint + "/trainings/" + $("#editTrainingId").val(), {
+        fetchJson(restEndpoint + "/trainings/" + document.getElementById("editTrainingId").value, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 "X-XSRF-TOKEN": xsrfToken
             },
             body: JSON.stringify({
-                name: $("#editName").val(),
-                language: $("#editLanguage").val(),
-                startDate: $("#editStartDate").val(),
-                teacherId: $("#editTeacher").val(),
+                name: document.getElementById("editName").value,
+                language: document.getElementById("editLanguage").value,
+                startDate: document.getElementById("editStartDate").value,
+                teacherId: document.getElementById("editTeacher").value,
                 version: versionUnderEdit,
                 description: editDescriptionQuill.root.innerHTML
-                // description: $("#editDescription").val()
             })
         }).then(function () {
             toastr.success("Training Updated");
-            $('#trainingMain').show();
-            $('#trainingEditDiv').hide();
+            document.getElementById("trainingMain").style.display = "";
+            document.getElementById("trainingEditDiv").style.display = "none";
             refreshTrainingsTable();
         });
     }
@@ -479,14 +477,13 @@
     // ------------- TRAINING: CREATE SCREEN --------------------
 
     function openCreateTraining() {
-        populateLanguageSelect($("#newLanguage"));
-        populateTeacherSelect($("#newTeacher"));
-        $("#newName").val("");
-        $("#newStartDate").val("01-01-"+(1+new Date().getFullYear()));
-        // $("#newDescription").val("");
+        populateLanguageSelect(document.getElementById("newLanguage"));
+        populateTeacherSelect(document.getElementById("newTeacher"));
+        document.getElementById("newName").value = "";
+        document.getElementById("newStartDate").value = "01-01-"+(1+new Date().getFullYear());
         newDescriptionQuill.root.innerHTML = "";
-        $('#trainingMain').hide();
-        $('#trainingNewDiv').show();
+        document.getElementById("trainingMain").style.display = "none";
+        document.getElementById("trainingNewDiv").style.display = "";
     }
 
     function createTraining() {
@@ -497,17 +494,16 @@
                 "X-XSRF-TOKEN": xsrfToken
             },
             body: JSON.stringify({
-                name: $("#newName").val(),
-                // description: $("#newDescription").val(),
+                name: document.getElementById("newName").value,
                 description: newDescriptionQuill.root.innerHTML,
-                language: $("#newLanguage").val(),
-                startDate: $("#newStartDate").val(),
-                teacherId: $("#newTeacher").val()
+                language: document.getElementById("newLanguage").value,
+                startDate: document.getElementById("newStartDate").value,
+                teacherId: document.getElementById("newTeacher").value
             })
         }).then(function () {
             toastr.success("Training created");
-            $('#trainingMain').show();
-            $('#trainingNewDiv').hide();
+            document.getElementById("trainingMain").style.display = "";
+            document.getElementById("trainingNewDiv").style.display = "none";
             refreshTrainingsTable();
         });
     }

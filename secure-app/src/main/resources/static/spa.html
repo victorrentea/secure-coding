@@ -3,7 +3,6 @@
 <head>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <meta charset="UTF-8"/>
-    <script type="text/javascript" src="jquery-1.12.2.min.js"></script>
     <script type="text/javascript" src="toastr.min.js"></script>
     <link href="toastr.min.css" rel="stylesheet"/>
 </head>
@@ -50,42 +49,41 @@
 </script>
 <script>
     function fetchCurrentUser() {
-        $.ajax("http://localhost:8080/api/user/current", {
+        fetch("http://localhost:8080/api/user/current", {
             method: "GET",
             headers: {
                 "Authorization": "Bearer " + keycloak.token
-            },
-            success: function (user) {
+            }
+        })
+            .then(r => r.ok ? r.json() : Promise.reject(r))
+            .then(user => {
                 currentUser.innerText = "✅" + JSON.stringify(user);
-            },
-            error: function (e) {
+            })
+            .catch(e => {
                 currentUser.innerText = "❌error: " + e;
                 console.log(e);
-            }
-        });
+            });
     }
 
     function transferAmount() {
-        $.ajax("http://localhost:8080/api/victim/transfer-rest", {
+        fetch("http://localhost:8080/api/victim/transfer-rest", {
             method: "POST",
-            // xhrFields: { withCredentials: true }, // CORS sending credentials
-            data: JSON.stringify({
-                recipientFullName: $("#fullName").val(),
-                recipientIban: $("#iban").val(),
-                amount: $("#amount").val()
-            }),
-            contentType: "application/json",
+            // credentials: "include", // CORS sending credentials
             headers: {
-                "Authorization": "Bearer "+ keycloak.token
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + keycloak.token
             },
-            success: function (trainings) {
-                toastr.success("Money Transferred")
-            },
-            error: function (e) {
-                toastr.error("Error: " + e)
+            body: JSON.stringify({
+                recipientFullName: document.getElementById("fullName").value,
+                recipientIban: document.getElementById("iban").value,
+                amount: document.getElementById("amount").value
+            })
+        })
+            .then(r => r.ok ? toastr.success("Money Transferred") : Promise.reject(r))
+            .catch(e => {
+                toastr.error("Error: " + e);
                 console.log(e);
-            }
-        });
+            });
     }
 </script>
 
