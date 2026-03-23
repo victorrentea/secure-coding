@@ -52,7 +52,7 @@ public class UserPassSecurityConfig {
     http.cors(Customizer.withDefaults());
 
     http.authorizeHttpRequests(authz -> authz
-        // .requestMatchers(HttpMethod.DELETE, "/api/trainings/*").hasRole("ADMIN") // ❌ AVOID: out-of-sync risk
+         .requestMatchers(HttpMethod.DELETE, "/api/trainings/*").hasRole("ADMIN") // ❌ AVOID: out-of-sync risk
         // TODO /v3/** permitAll
         .anyRequest().authenticated()
     );

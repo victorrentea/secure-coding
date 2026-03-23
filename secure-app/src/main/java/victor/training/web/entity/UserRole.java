@@ -5,7 +5,7 @@ import java.util.*;
 public enum UserRole {
   //  managed by 'entitlements' -> treaba lor
     USER("TRAINING_SEARCH", "TRAINING_EDIT"),
-    POWER("TRAINING_SEARCH", "TRAINING_EDIT", "TRAINING_DELETE"),
+    POWER("TRAINING_SEARCH", "TRAINING_EDIT", "TRAINING_DELETE" /*+50*/),
     ADMIN("TRAINING_SEARCH" ,"TRAINING_EDIT", "TRAINING_DELETE", "TEACHER_EDIT");
     private final List<String> authorities;
 

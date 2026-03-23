@@ -1,5 +1,6 @@
 package victor.training.web.controller;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.owasp.html.PolicyFactory;
@@ -69,6 +70,9 @@ public class TrainingController {
 //  @PreAuthorize("@permissionService.canDeleteTraining(#trainingId)") // b
 //  @PreAuthorize("hasPermission(#trainingId, 'TRAINING', 'WRITE')") // c
 
+//  @RolesAllowed("ROLE_TRAINING_DELETE") // JavaEE early 2000s equivalent with @Secured, but supports also JSR-250 annotations like @DenyAll, @PermitAll
+//  @Secured("ROLE_TRAINING_DELETE") // Spring
+//  @PreAuthorize()
   @DeleteMapping("{trainingId}")
   public void delete(@PathVariable Long trainingId) {
     // a)

@@ -16,6 +16,7 @@ public class CorsConfig {
                 registry.addMapping("/api/**")
                         .allowedMethods("*")
                         .allowCredentials(true) // allows receiving session cookie (if using cookies)
+//                        .allowedOriginPatterns("https://cdn.bank.com") // ✅ CDN eg NodeJS
                         .allowedOriginPatterns("http://localhost:8081") // ✅ CDN eg NodeJS
 //					              .allowedOriginPatterns("http://*") // ❌ Too broad
                 ;
