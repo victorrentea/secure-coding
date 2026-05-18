@@ -19,11 +19,9 @@ public class Hashing {
     hashText("The quick brown fox jumped over the lazy dog.");
 
     System.out.println("2) deterministic: same input => same hash");
-    // TODO hash the same input and see the same output
     hashText("The quick brown fox jumped over the lazy dog.");
 
     System.out.println("psuedorandom");
-    // TODO insert one typo in the same input, and observe a wildly different hash
     hashText("The quick brown fox jumped ower the lazy dog.");
 
     System.out.println("fixed length, no matter how large the input");
@@ -35,7 +33,9 @@ public class Hashing {
     System.out.println("Input: " + data);
 
     // TODO compute a SHA-256 hash
-    byte[] digest = {0};
+    MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+    messageDigest.update(data.getBytes());
+    byte[] digest = messageDigest.digest(data.getBytes()); //32 bytes
 
     Utils.printByteArray("Digest", digest);
     return new String(Base64.getEncoder().encode(digest));

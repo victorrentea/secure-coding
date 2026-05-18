@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import victor.training.crypto.SymmetricEncryption;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
 import java.security.Key;
 import java.util.Base64;
 
@@ -24,34 +26,34 @@ public class TeacherNameEncrypter implements AttributeConverter<String, String> 
   @Override
   @SneakyThrows
   public String convertToDatabaseColumn(String attribute) {
-    return Base64.getEncoder().encodeToString(attribute.getBytes());
+//    return Base64.getEncoder().encodeToString(attribute.getBytes());
 
     // TODO generate iv
     // TODO encrypt attribute.getBytes() using key + iv
     // TODO save in db encrypted base64(bytes) + "." + base64(iv)
-//    Cipher encrypt = Cipher.getInstance("AES/CBC/PKCS5Padding");
-//    var iv = SymmetricEncryption.generateIv();
-//    encrypt.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
-//    byte[] encryptedOutput = encrypt.doFinal(attribute.getBytes());
-//
-//    return Base64.getEncoder().encodeToString(encryptedOutput) +
-//        "." +
-//        Base64.getEncoder().encodeToString(iv);
+    Cipher encrypt = Cipher.getInstance("AES/CBC/PKCS5Padding");
+    var iv = SymmetricEncryption.generateIv();
+    encrypt.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+    byte[] encryptedOutput = encrypt.doFinal(attribute.getBytes());
+
+    return Base64.getEncoder().encodeToString(encryptedOutput) +
+        "." +
+        Base64.getEncoder().encodeToString(iv);
   }
 
   @Override
   @SneakyThrows
   public String convertToEntityAttribute(String dbData) {
-    return new String(Base64.getDecoder().decode(dbData));
+//    return new String(Base64.getDecoder().decode(dbData));
 
     // TODO parse > decrypt
-//    String[] parts = dbData.split("\\.");
-//    byte[] encryptedData = Base64.getDecoder().decode(parts[0]);
-//    byte[] iv = Base64.getDecoder().decode(parts[1]);
-//
-//    Cipher decrypt = Cipher.getInstance("AES/CBC/PKCS5Padding");
-//    decrypt.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
-//    byte[] decryptedOutput = decrypt.doFinal(encryptedData);
-//    return new String(decryptedOutput);
+    String[] parts = dbData.split("\\.");
+    byte[] encryptedData = Base64.getDecoder().decode(parts[0]);
+    byte[] iv = Base64.getDecoder().decode(parts[1]);
+
+    Cipher decrypt = Cipher.getInstance("AES/CBC/PKCS5Padding");
+    decrypt.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
+    byte[] decryptedOutput = decrypt.doFinal(encryptedData);
+    return new String(decryptedOutput);
   }
 }

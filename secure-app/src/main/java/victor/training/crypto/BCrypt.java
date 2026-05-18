@@ -14,13 +14,18 @@ public class BCrypt {
 
   @Test
   void explore() {
-    BCryptPasswordEncoder bcryptEncoder = new BCryptPasswordEncoder(STRENGTH, new SecureRandom());
-    String encodedPassword = bcryptEncoder.encode("password");
+    //at user create account / when you set a password for your /actuator
+//    BCryptPasswordEncoder bcryptEncoder = new BCryptPasswordEncoder(STRENGTH, new SecureRandom());
+//    String encodedPassword = bcryptEncoder.encode("password");
 
+    String encodedPassword = "$2a$10$aLnAE79inlS22L.ZvDo6lu.Jx693Nd3LQy0CtArgVlFm8QFy2AOh6";
     System.out.println("{bcrypt}" + encodedPassword);
 
-    // TODO assert that bcrypt#matches("password" is true
+    System.out.println(new BCryptPasswordEncoder(STRENGTH, new SecureRandom())
+        .matches("password", encodedPassword));
 
     // TODO assert that bcrypt#matches("different" is false
+    System.out.println(new BCryptPasswordEncoder(STRENGTH, new SecureRandom())
+        .matches("wrong", encodedPassword));
   }
 }
