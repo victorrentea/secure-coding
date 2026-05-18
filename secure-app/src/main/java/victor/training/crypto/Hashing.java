@@ -34,8 +34,8 @@ public class Hashing {
   private String hashText(String data) throws NoSuchAlgorithmException {
     System.out.println("Input: " + data);
 
-    MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-    byte[] digest = messageDigest.digest(data.getBytes());
+    // TODO compute a SHA-256 hash
+    byte[] digest = {0};
 
     Utils.printByteArray("Digest", digest);
     return new String(Base64.getEncoder().encode(digest));

@@ -20,23 +20,19 @@ public class SymmetricEncryption {
     Key key = parseSymmetricKeyFromBase64("PAfo78wex8ncPKeixDT3NAcFO/5orNKO");
     Utils.printByteArray("key", key.getEncoded());
 
+    byte[] input = "sensitive data".getBytes();
+    Utils.printText("input", input);
+
     // === get a random Initialization Vector (IV) aka "nonce" = number-used-once
     byte[] iv = generateIv();
     Utils.printByteArray("ivSpec", iv);
 
-    byte[] input = "sensitive data".getBytes();
-    Utils.printText("input", input);
-
-    // === encrypt using key + iv
-    Cipher encrypt = Cipher.getInstance("AES/CBC/PKCS5Padding");
-    encrypt.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
-    byte[] encryptedOutput = encrypt.doFinal(input);
+    // === encrypt using key + iv using cipher AES/CBC/PKCS5Padding
+    byte[] encryptedOutput = {0};//encrypt.doFinal(input);
     Utils.printByteArray("encrypted output", encryptedOutput);
 
     // === decrypt using key + iv
-    Cipher decrypt = Cipher.getInstance("AES/CBC/PKCS5Padding");
-    decrypt.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
-    byte[] decryptedOutput = decrypt.doFinal(encryptedOutput);
+    byte[] decryptedOutput = {0};//decrypt.doFinal(encryptedOutput);
     Utils.printText("decrypted input", decryptedOutput);
   }
 

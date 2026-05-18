@@ -19,11 +19,8 @@ public class BCrypt {
 
     System.out.println("{bcrypt}" + encodedPassword);
 
-    // TODO assert that bcrypt#matches is true
-    BCryptPasswordEncoder bcryptMatcher = new BCryptPasswordEncoder(STRENGTH, new SecureRandom());
-    Assertions.assertThat(bcryptMatcher.matches("password", encodedPassword)).isTrue();
+    // TODO assert that bcrypt#matches("password" is true
 
-    // TODO assert that bcrypt#matches is false
-    Assertions.assertThat(bcryptMatcher.matches("different", encodedPassword)).isFalse();
+    // TODO assert that bcrypt#matches("different" is false
   }
 }

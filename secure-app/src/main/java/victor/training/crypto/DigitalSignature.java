@@ -29,7 +29,7 @@ public class DigitalSignature {
 
         // verification on the other end of the channel ----
         String receivedData = "My Company is the best!!!";
-//        String receivedData = "My Company is the worst!!!";
+//        String receivedData = "My Company is the worst!!!"; // tamper content
 
         Signature verificationAlgorithm = Signature.getInstance("SHA256WithRSA");
         // TODO initVerify(publicK), update, verify
