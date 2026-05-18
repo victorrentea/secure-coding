@@ -24,6 +24,8 @@
         <module>cdn</module>
         <module>gateway</module>
         <module>spring-micro</module>
+        <module>mtls</module>
+
     </modules>
     <dependencies>
         <dependency>
