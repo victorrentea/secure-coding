@@ -22,7 +22,7 @@ public class TrainingDto {
 	public String teacherName;
 	@JsonFormat(pattern = "dd-MM-yyyy")
 	public LocalDate startDate;
-  //@RichTextSanitizer.RichText
+  //@RichTextSanitizerAspect.RichText
 	public String description;
 	@VisibleForRole("ROLE_ADMIN")
 	public String createdBy;

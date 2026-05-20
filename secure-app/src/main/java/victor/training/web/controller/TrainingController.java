@@ -84,7 +84,7 @@ public class TrainingController {
 
   private static String sanitizeRichText(String description) {
     // allows only <b>,<i>... = "allow-list"
-    // also see RichTextSanitizer
+    // also see RichTextSanitizerAspect
     PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
     return sanitizer.sanitize(description);
   }
