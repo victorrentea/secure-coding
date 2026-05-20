@@ -32,6 +32,9 @@ public class RichTextSanitizer {
   public @interface RichText {
   }
 
+  // vert.x closest match: https://claude.ai/share/19d66215-2288-440c-b5cc-9c214b09cad2
+  // Parse the JSON object of the request or the response and blindly sanitize the strings in there.
+
   @Around("@within(org.springframework.web.bind.annotation.RestController)")
   public Object sanitizeHttpPayloads(ProceedingJoinPoint pjp) throws Throwable {
     Object[] args = pjp.getArgs();
