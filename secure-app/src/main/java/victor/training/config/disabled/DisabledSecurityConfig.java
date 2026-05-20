@@ -29,6 +29,7 @@ public class DisabledSecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable());
     http.authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
+    http.headers(h -> h.frameOptions(f -> f.disable()));
     return http.build();
   }
 }
