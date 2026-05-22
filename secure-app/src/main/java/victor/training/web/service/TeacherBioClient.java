@@ -29,12 +29,12 @@ public class TeacherBioClient {
   public String retrieveBiographyForTeacher(long teacherId) {
     log.debug("Calling external API... ");
 
-//    var token = clientCredentialProvider.orElseThrow().getClientCredentialsToken();
     // a) Client-Credential - get Access Token for this app
+    var token = clientCredentialProvider.orElseThrow().getClientCredentialsToken();
     // - Only option for non HTTP flows: startup or @Scheduler tasks, @KafkaListener....
 
-    // b) Propagate user Access Token (from BE or FE)
-    var token = TokenUtils.getCurrentToken().orElseThrow();
+    // b) Propagate user Access Token (from SPA -> BE -> BE#2)
+//    var token = TokenUtils.getCurrentToken().orElseThrow();
 
     log.info("Sending AccessToken: {}", token);
 
