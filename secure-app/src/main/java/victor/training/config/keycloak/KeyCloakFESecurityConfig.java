@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,6 +34,7 @@ class KeyCloakFESecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
     http.csrf(CsrfConfigurer::disable);
+    http.cors(Customizer.withDefaults()); // setup CORS filter with the config from CorsConfig
     http.authorizeHttpRequests(requests -> requests
         .requestMatchers("/*").permitAll() // allow access to SPA static files: .html, .js ...
         .anyRequest().authenticated()
