@@ -29,30 +29,37 @@ Complex exercises unfold in **waves**, each building on the previous fix:
 - Third is **counterintuitive** (doesn't go through the server at all)
 
 ## Branch Strategy
-- **`master`** — Unsolved exercises with vulnerabilities. Tests are `@Disabled`. This is what students clone.
-- **`solutions`** — Fixed vulnerabilities with tests enabled (green). The trainer pushes this branch with the solved code.
-- Work through vulnerabilities one by one. Each gets its own commit on the solutions branch.
+- Everything lives on **`master`** — no separate solutions branch.
+- Vulnerable code is **active** in the method. The solution lives as a commented `// ✅` block **after** the method.
+- During the workshop the trainer drags the commented solution line(s) into the method body and uncomments them live.
+- Work through vulnerabilities one by one; commit per exercise.
 
 ## Solution vs. Vulnerable Code Convention
 
-On **solutions** branch, the fix is applied and the original vulnerable line is commented with `❌`:
-```java
-// ❌ comment.setBody(comment.getBody());           // vulnerable — no sanitization
-comment.setBody(sanitizeHtml(comment.getBody()));    // ✅ allow-list sanitization
-```
+The first view of any file shows **vulnerable code, uncommented, in the method body**. The solution sits below the method as a commented block prefixed with `// ✅`:
 
-On **master** (exercise), code is vulnerable with only TODO comments guiding the student:
 ```java
-// TODO Wave 1: The body field stores raw HTML — fix it using OWASP HTML Sanitizer
-return commentRepo.save(comment);
+@PostMapping("/comments")
+public CommentDto createComment(@RequestBody CommentDto dto) {
+  Comment comment = new Comment();
+  comment.setAuthor(dto.author());
+  comment.setBody(dto.body());
+  ...
+}
+// ✅
+//   comment.setAuthor(STRIP_ALL_HTML.sanitize(dto.author()));
+//   comment.setBody(HTML_SANITIZER.sanitize(dto.body()));
+// ✅ class-level:
+//   private static final PolicyFactory HTML_SANITIZER = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
+//   private static final PolicyFactory STRIP_ALL_HTML = new HtmlPolicyBuilder().toFactory();
 ```
 
 Rules:
-- `❌` = vulnerable line, commented out (visible on `solutions` as reference)
-- `✅` = the fix line
-- TODOs are **numbered by wave** and give **direction, not the solution**
-- Never put the solution as a comment on `master` — it goes on `solutions` branch
-- For initial workshop setup code (not vulnerability fixes): use `TODO X` marker with `// SOLUTION:` comment
+- Vulnerable code is **active** (uncommented) inside the method — no `❌` markers.
+- `// ✅` (alone or with a short qualifier like "class-level:") opens the solution block.
+- Each solution line is on its own commented line, indented under the `// ✅` header, ready to be dragged into the method and uncommented.
+- TODOs are **numbered by wave** and give **direction, not the solution**.
+- Imports for the solution may stay at the top of the file even when unused — keeps the diff clean and the IDE silent.
 
 ## Testing Strategy
 - Each vulnerability exercise has a corresponding **integration test**.
