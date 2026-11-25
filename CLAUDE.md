@@ -64,7 +64,7 @@ Rules:
 ## Testing Strategy
 - Each vulnerability exercise has a corresponding **integration test**.
 - On `master`: tests are **`@Disabled("TODO Wave N: fix the ...")`**.
-- On `solutions`: the `@Disabled` annotation is removed and tests pass green.
+- Once the `// ✅` solution is applied, the `@Disabled` annotation is removed and the test passes green.
 - Tests prove the fix works by:
   - Sending malicious input (attack payload)
   - Verifying it's neutralized (no script, onerror, etc.)
@@ -80,9 +80,9 @@ Each vulnerability exercise should have:
 | File | Role |
 |------|------|
 | `SV{N}_{Name}.java` | Vulnerable endpoint + entity + repo (all in one file) |
-| `SV{N}_{Name}.http` | Investigation and attack requests, with scrolling-hidden hints |
+| `SV{N}_{Name}.http` | Investigation and attack requests — no hints, not even hidden below scrolling spacers |
 | `SV{N}_{Name}.md` | Walkthrough with `<details>` collapsible sections per phase |
-| `SV{N}_{Name}Test.java` | Tests: `@Disabled` on master, enabled on solutions |
+| `SV{N}_{Name}Test.java` | Tests: `@Disabled` until the `// ✅` fix is applied |
 | `{name}.html` | Frontend page (in `static/vulnerability/`) |
 
 ### `.http` file structure
@@ -155,7 +155,7 @@ Rules:
 5. **Don't change code without discussing the plan first** — each exercise is planned in dialogue, not unilaterally.
 
 ## Key Decisions
-- Solutions go on a separate `solutions` branch (named exactly `solutions`), not inline as comments
+- Solutions live on `master`, inline as a commented `// ✅` block after the method — no separate branch (see the convention above)
 - Exercise ordering follows the TRAINING-PLAN.md progression
 - Frontend HTML pages exist for vulnerability exercises (in `static/vulnerability/`)
 - The attacker app (secure-app-attacker, port 8081/9999) demonstrates CSRF/CORS attacks
